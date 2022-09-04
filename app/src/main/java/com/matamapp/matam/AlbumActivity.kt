@@ -41,13 +41,19 @@ class AlbumActivity : AppCompatActivity() {
         sheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
-                    BottomSheetBehavior.STATE_COLLAPSED -> bottomSheetFlag = false
-                    BottomSheetBehavior.STATE_EXPANDED -> bottomSheetFlag = true
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        playerFragment.collapsed()
+                        bottomSheetFlag = false
+                    }
+
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        playerFragment.expanded()
+                        bottomSheetFlag = true
+                    }
                     BottomSheetBehavior.STATE_DRAGGING -> return
                     BottomSheetBehavior.STATE_SETTLING -> return
                     BottomSheetBehavior.STATE_HIDDEN -> return
-                    else -> Toast.makeText(applicationContext, "OTHER_STATE", Toast.LENGTH_SHORT)
-                        .show()
+                    else -> return
                 }
             }
 
