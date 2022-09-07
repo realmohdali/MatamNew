@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary">
@@ -41,7 +40,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/progressBar">
 
                 <ImageView
-                    android:id="@+id/imageView"
+                    android:id="@+id/miniTrackArt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/nadeem_sarwar" />
@@ -50,10 +49,11 @@
 
             <TextView
                 android:id="@+id/miniTrackArtist"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_marginBottom="16dp"
+                android:ellipsize="marquee"
                 android:text="Nadeem Sarwar"
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -61,71 +61,98 @@
 
             <TextView
                 android:id="@+id/miniTrackTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Azadar"
+                android:layout_marginTop="15dp"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:text="Labbik ya hussain (A.S.) this is a bigger issue of the title"
                 android:textColor="@color/white"
-                android:textSize="22sp"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/miniPrev"
                 app:layout_constraintStart_toStartOf="@+id/miniTrackArtist"
                 app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
-            <ImageView
-                android:id="@+id/miniPrevious"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
+            <ImageButton
+                android:id="@+id/miniPrev"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:adjustViewBounds="true"
+                android:backgroundTint="@color/primary"
+                android:padding="10dp"
+                android:scaleType="centerInside"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/miniPlayPause"
-                app:layout_constraintTop_toBottomOf="@+id/progressBar"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_skip_previous_24" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/miniPlayPause"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
-                app:layout_constraintBottom_toBottomOf="@+id/miniPrevious"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:adjustViewBounds="true"
+                android:backgroundTint="@color/primary"
+                android:padding="5dp"
+                android:scaleType="centerInside"
+                app:layout_constraintBottom_toBottomOf="@+id/miniPrev"
                 app:layout_constraintEnd_toStartOf="@+id/miniNext"
-                app:layout_constraintTop_toTopOf="@+id/miniPrevious"
+                app:layout_constraintTop_toTopOf="@+id/miniPrev"
                 app:srcCompat="@drawable/ic_baseline_pause_24" />
 
-            <ImageView
+            <ProgressBar
+                android:id="@+id/miniLoading"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:layout_constraintBottom_toBottomOf="@+id/miniPrev"
+                app:layout_constraintEnd_toStartOf="@+id/miniNext"
+                app:layout_constraintTop_toTopOf="@+id/miniPrev" />
+
+            <ImageButton
                 android:id="@+id/miniNext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="25dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
+                android:adjustViewBounds="true"
+                android:backgroundTint="@color/primary"
+                android:padding="10dp"
+                android:scaleType="centerInside"
                 app:layout_constraintBottom_toBottomOf="@+id/miniPlayPause"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/miniPlayPause"
                 app:srcCompat="@drawable/ic_baseline_skip_next_24" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_begin="20dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 
-    <ImageView
+    <androidx.cardview.widget.CardView
         android:id="@+id/poster"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/downArrow"
-        app:srcCompat="@drawable/nadeem_sarwar" />
+        app:layout_constraintTop_toBottomOf="@+id/downArrow">
 
-    <ImageView
+        <ImageView
+            android:id="@+id/trackArt"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            app:srcCompat="@drawable/nadeem_sarwar" />
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageButton
         android:id="@+id/downArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:backgroundTint="@color/primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -164,10 +191,17 @@
 
     <TextView
         android:id="@+id/trackTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:text="Labbik ya hussain (A.S.)"
+        android:layout_marginEnd="20dp"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="Labbik ya hussain (A.S.) this is a bigger issue of the title"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -175,7 +209,7 @@
         app:layout_constraintTop_toBottomOf="@+id/currentTime" />
 
     <TextView
-        android:id="@+id/ArtistName"
+        android:id="@+id/artist_name_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nadeem Sarwar"
@@ -191,7 +225,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ArtistName"
+        app:layout_constraintTop_toBottomOf="@+id/artist_name_view"
         app:srcCompat="@drawable/ic_baseline_volume_mute_24" />
 
     <ImageView
@@ -206,49 +240,47 @@
 
     <SeekBar
         android:id="@+id/volumeSlider"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="0dp"
         android:layout_height="17dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:max="10"
-        android:progress="3"
+        android:max="15"
+        android:progress="10"
+        android:progressTint="@color/white"
+        android:thumbTint="@color/white"
         app:layout_constraintBottom_toBottomOf="@+id/mute"
         app:layout_constraintEnd_toStartOf="@+id/fullVolume"
         app:layout_constraintStart_toEndOf="@+id/mute"
         app:layout_constraintTop_toTopOf="@+id/mute" />
 
-    <ImageView
-        android:id="@+id/favIcon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="50dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/volumeSlider"
-        app:srcCompat="@drawable/ic_baseline_favorite_24" />
-
-    <ImageView
-        android:id="@+id/previous"
+    <ImageButton
+        android:id="@+id/shuffle"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="@+id/favIcon"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="@color/primary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/volumeSlider"
+        app:srcCompat="@drawable/ic_baseline_shuffle_24" />
+
+    <ImageButton
+        android:id="@+id/previous"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="15dp"
+        android:backgroundTint="@color/primary"
+        app:layout_constraintBottom_toBottomOf="@+id/shuffle"
         app:layout_constraintEnd_toStartOf="@+id/playPause"
-        app:layout_constraintStart_toEndOf="@+id/favIcon"
-        app:layout_constraintTop_toTopOf="@+id/favIcon"
+        app:layout_constraintStart_toEndOf="@+id/shuffle"
+        app:layout_constraintTop_toTopOf="@+id/shuffle"
         app:srcCompat="@drawable/ic_baseline_skip_previous_24" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/playPause"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:clickable="true"
-        android:focusable="true"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:backgroundTint="@color/primary"
         app:layout_constraintBottom_toBottomOf="@+id/previous"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -256,26 +288,34 @@
         app:layout_constraintTop_toTopOf="@+id/previous"
         app:srcCompat="@drawable/ic_baseline_pause_24" />
 
-    <ImageView
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        app:layout_constraintBottom_toBottomOf="@+id/previous"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/previous" />
+
+    <ImageButton
         android:id="@+id/next"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="20dp"
-        android:clickable="true"
-        android:focusable="true"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="15dp"
+        android:backgroundTint="@color/primary"
         app:layout_constraintBottom_toBottomOf="@+id/playPause"
         app:layout_constraintEnd_toStartOf="@+id/repeat"
         app:layout_constraintStart_toEndOf="@+id/playPause"
         app:layout_constraintTop_toTopOf="@+id/playPause"
         app:srcCompat="@drawable/ic_baseline_skip_next_24" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/repeat"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginEnd="40dp"
-        android:clickable="true"
-        android:focusable="true"
+        android:backgroundTint="@color/primary"
         app:layout_constraintBottom_toBottomOf="@+id/next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/next"
@@ -288,32 +328,34 @@
         android:layout_height="wrap_content"
         android:text="LYRICS"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/shuffle"
+        app:layout_constraintBottom_toBottomOf="@+id/fav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/shuffle"
+        app:layout_constraintTop_toTopOf="@+id/fav"
         app:strokeColor="@color/white" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/queue"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginEnd="50dp"
+        android:backgroundTint="@color/primary"
         app:layout_constraintBottom_toBottomOf="@+id/lyrics"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/lyrics"
         app:layout_constraintTop_toTopOf="@+id/lyrics"
         app:srcCompat="@drawable/ic_baseline_queue_music_24" />
 
-    <ImageView
-        android:id="@+id/shuffle"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+    <ImageButton
+        android:id="@+id/fav"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="50dp"
         android:layout_marginTop="45dp"
+        android:backgroundTint="@color/primary"
         app:layout_constraintEnd_toStartOf="@+id/lyrics"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playPause"
-        app:srcCompat="@drawable/ic_baseline_shuffle_24" />
+        app:srcCompat="@drawable/ic_baseline_favorite_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

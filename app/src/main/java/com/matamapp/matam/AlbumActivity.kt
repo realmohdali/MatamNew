@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -24,8 +23,10 @@ class AlbumActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
+        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         setPlayer()
         setAlbum()
@@ -65,6 +66,14 @@ class AlbumActivity : AppCompatActivity() {
         })
     }
 
+    fun toggleBottomSheet() {
+        if (bottomSheetFlag) {
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        } else {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
     private fun setAlbum() {
         val albumView = findViewById<RecyclerView>(R.id.album_view)
         val adapter = AlbumAdapter()
@@ -89,6 +98,10 @@ class AlbumActivity : AppCompatActivity() {
             }
             R.id.playlist -> {
                 Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            android.R.id.home -> {
+                this.finish()
                 return true
             }
             else -> {

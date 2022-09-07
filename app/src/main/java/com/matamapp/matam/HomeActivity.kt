@@ -2,6 +2,7 @@ package com.matamapp.matam
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,7 +11,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.fragments.MediaPlayerFragment
 
@@ -18,12 +18,13 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetFlag = false
+    private lateinit var playerFragment: MediaPlayerFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
+        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
 
         setPlayer()
@@ -34,7 +35,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setPlayer() {
-        val playerFragment = MediaPlayerFragment()
+        playerFragment = MediaPlayerFragment()
         supportFragmentManager.beginTransaction().replace(R.id.playerPlaceholder, playerFragment)
             .commitAllowingStateLoss()
 
@@ -65,6 +66,19 @@ class HomeActivity : AppCompatActivity() {
                 playerFragment.scroll(x)
             }
         })
+    }
+
+    fun toggleBottomSheet() {
+        if (bottomSheetFlag) {
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        } else {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        playerFragment.setVolume(keyCode)
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
