@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.fragments.MediaPlayerFragment
 
@@ -19,18 +20,25 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetFlag = false
     private lateinit var playerFragment: MediaPlayerFragment
+    private lateinit var bottomNavigationView: BottomNavigationView
+    private var scale = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        scale = resources.displayMetrics.density
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
 
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
+
         setPlayer()
 
         findViewById<Button>(R.id.albumBtton).setOnClickListener {
-            startActivity(Intent(this, AlbumActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
         }
     }
 
@@ -40,6 +48,8 @@ class HomeActivity : AppCompatActivity() {
             .commitAllowingStateLoss()
 
         sheetBehavior = BottomSheetBehavior.from(findViewById(R.id.player))
+
+        sheetBehavior.peekHeight = (150 * scale + 0.5f).toInt()
 
         sheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -52,6 +62,7 @@ class HomeActivity : AppCompatActivity() {
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         playerFragment.expanded()
                         bottomSheetFlag = true
+                        bottomNavigationView.visibility = View.GONE
                     }
                     BottomSheetBehavior.STATE_DRAGGING -> return
                     BottomSheetBehavior.STATE_SETTLING -> return
@@ -64,6 +75,8 @@ class HomeActivity : AppCompatActivity() {
                 // handle onSlide
                 val x = 1 - slideOffset
                 playerFragment.scroll(x)
+                bottomNavigationView.visibility = View.VISIBLE
+                bottomNavigationView.alpha = x
             }
         })
     }
