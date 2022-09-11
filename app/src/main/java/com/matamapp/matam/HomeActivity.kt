@@ -1,18 +1,19 @@
 package com.matamapp.matam
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.NestedScrollView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.matamapp.matam.adapters.HomeViewPagerAdapter
 import com.matamapp.matam.fragments.MediaPlayerFragment
 
 class HomeActivity : AppCompatActivity() {
@@ -22,6 +23,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var playerFragment: MediaPlayerFragment
     private lateinit var bottomNavigationView: BottomNavigationView
     private var scale = 0f
+    private lateinit var nestedScrollView: NestedScrollView
+    private var playerIsVisible = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,16 +32,62 @@ class HomeActivity : AppCompatActivity() {
 
         scale = resources.displayMetrics.density
 
+        //findViewById<ConstraintLayout>(R.id.player).visibility = View.GONE
+        nestedScrollView = findViewById(R.id.nested_scroll_view)
+
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
 
-        bottomNavigationView = findViewById(R.id.bottomNavigationView)
-
+        setActivity()
         setPlayer()
+    }
 
-        findViewById<Button>(R.id.albumBtton).setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
+    private fun setActivity() {
+
+        val navigationHome = R.id.navigation_home
+        val navigationNauhaKhuwan = R.id.navigation_Nauha_Khuwan
+        val navigationYears = R.id.navigation_year
+
+        val viewPager = findViewById<ViewPager2>(R.id.view_pager)
+
+        val viewPagerAdapter = HomeViewPagerAdapter(supportFragmentManager, this.lifecycle)
+
+        viewPager.adapter = viewPagerAdapter
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                if (position == 0) {
+                    bottomNavigationView.selectedItemId = navigationHome
+                } else if (position == 1) {
+                    bottomNavigationView.selectedItemId = navigationNauhaKhuwan
+                } else {
+                    bottomNavigationView.selectedItemId = navigationYears
+                }
+            }
+        })
+
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
+        bottomNavigationView.selectedItemId = R.id.navigation_home
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                navigationHome -> {
+                    viewPager.currentItem = 0
+                    true
+                }
+                navigationNauhaKhuwan -> {
+                    viewPager.currentItem = 1
+                    true
+                }
+                navigationYears -> {
+                    viewPager.currentItem = 2
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
         }
     }
 
@@ -103,6 +152,7 @@ class HomeActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.profile -> {
                 Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
+                togglePlayerVisibility()
                 return true
             }
             R.id.search -> {
@@ -125,6 +175,17 @@ class HomeActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
 
+    private fun togglePlayerVisibility() {
+        if (playerIsVisible) {
+            playerIsVisible = false
+            nestedScrollView.setPadding(0, 0, 0, (75 * scale + 0.5f).toInt())
+            findViewById<ConstraintLayout>(R.id.player).visibility = View.GONE
+        } else {
+            playerIsVisible = true
+            nestedScrollView.setPadding(0, 0, 0, (155 * scale + 0.5f).toInt())
+            findViewById<ConstraintLayout>(R.id.player).visibility = View.VISIBLE
+        }
     }
 }
