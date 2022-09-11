@@ -23,6 +23,8 @@ private const val ARG_PARAM2 = "param2"
 class HomeFragment : Fragment() {
 
     private lateinit var xmlView: View
+    private lateinit var albumView: RecyclerView
+    private lateinit var adapter: AlbumAdapter
 
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -42,11 +44,15 @@ class HomeFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         xmlView = inflater.inflate(R.layout.fragment_home, container, false)
-        val albumView = xmlView.findViewById<RecyclerView>(R.id.album_view)
-        val adapter = AlbumAdapter()
+        albumView = xmlView.findViewById<RecyclerView>(R.id.album_view)
+        adapter = AlbumAdapter()
         albumView.layoutManager = LinearLayoutManager(context)
-        albumView.adapter = adapter
         return xmlView
+    }
+
+    override fun onResume() {
+        super.onResume()
+        albumView.adapter = adapter
     }
 
     companion object {

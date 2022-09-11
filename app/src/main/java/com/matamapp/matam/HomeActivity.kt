@@ -24,7 +24,6 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private var scale = 0f
     private lateinit var nestedScrollView: NestedScrollView
-    private var playerIsVisible = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,7 +151,6 @@ class HomeActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.profile -> {
                 Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
-                togglePlayerVisibility()
                 return true
             }
             R.id.search -> {
@@ -174,18 +172,6 @@ class HomeActivity : AppCompatActivity() {
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         } else {
             super.onBackPressed()
-        }
-    }
-
-    private fun togglePlayerVisibility() {
-        if (playerIsVisible) {
-            playerIsVisible = false
-            nestedScrollView.setPadding(0, 0, 0, (75 * scale + 0.5f).toInt())
-            findViewById<ConstraintLayout>(R.id.player).visibility = View.GONE
-        } else {
-            playerIsVisible = true
-            nestedScrollView.setPadding(0, 0, 0, (155 * scale + 0.5f).toInt())
-            findViewById<ConstraintLayout>(R.id.player).visibility = View.VISIBLE
         }
     }
 }
