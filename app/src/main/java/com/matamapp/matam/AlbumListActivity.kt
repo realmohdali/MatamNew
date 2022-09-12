@@ -11,30 +11,40 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.AlignItems
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.matamapp.matam.adapters.AlbumAdapter
+import com.matamapp.matam.adapters.AlbumListAdapter
 import com.matamapp.matam.fragments.MediaPlayerFragment
 
-class AlbumActivity : AppCompatActivity() {
+class AlbumListActivity : AppCompatActivity() {
 
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetFlag = false
+    private lateinit var playerFragment: MediaPlayerFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_album)
+        setContentView(R.layout.activity_album_list)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.title = "Album List"
+        val recyclerView = findViewById<RecyclerView>(R.id.album_list_view)
+        recyclerView.layoutManager = FlexboxLayoutManager(this).apply {
+            justifyContent = JustifyContent.CENTER
+            alignItems = AlignItems.CENTER
+        }
+        val adapter = AlbumListAdapter()
+        recyclerView.adapter = adapter
 
         setPlayer()
-        setAlbum()
     }
 
     private fun setPlayer() {
-        val playerFragment = MediaPlayerFragment()
+        playerFragment = MediaPlayerFragment()
         supportFragmentManager.beginTransaction().replace(R.id.playerPlaceholder, playerFragment)
             .commitAllowingStateLoss()
 
@@ -75,11 +85,9 @@ class AlbumActivity : AppCompatActivity() {
         }
     }
 
-    private fun setAlbum() {
-        val albumView = findViewById<RecyclerView>(R.id.album_view)
-        val adapter = AlbumAdapter()
-        albumView.layoutManager = LinearLayoutManager(this)
-        albumView.adapter = adapter
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        playerFragment.setVolume(keyCode)
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -89,6 +97,10 @@ class AlbumActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
             R.id.profile -> {
                 Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
                 return true
@@ -101,15 +113,12 @@ class AlbumActivity : AppCompatActivity() {
                 Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
                 return true
             }
-            android.R.id.home -> {
-                this.finish()
-                return true
-            }
             else -> {
                 return super.onOptionsItemSelected(item)
             }
         }
     }
+
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {

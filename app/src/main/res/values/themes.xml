@@ -24,4 +24,14 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
     </style>
+
+    <style name="toolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorPrimary">@color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorPrimaryInverse">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/secondary</item>
+        <item name="materialCardViewStyle">@style/CardView.Dark</item>
+    </style>
 </resources>

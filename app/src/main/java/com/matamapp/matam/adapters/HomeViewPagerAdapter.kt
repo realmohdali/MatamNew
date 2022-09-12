@@ -1,5 +1,6 @@
 package com.matamapp.matam.adapters
 
+import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -9,7 +10,11 @@ import com.matamapp.matam.fragments.NauhaKhuwanFragment
 import com.matamapp.matam.fragments.YearsFragment
 
 
-class HomeViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+class HomeViewPagerAdapter(
+    fragmentManager: FragmentManager,
+    lifecycle: Lifecycle,
+    private val activityContext: Context
+) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
     override fun getItemCount(): Int {
         return 3
@@ -19,7 +24,7 @@ class HomeViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycl
         if (position == 0) {
             return HomeFragment()
         } else if (position == 1) {
-            return NauhaKhuwanFragment()
+            return NauhaKhuwanFragment(activityContext)
         } else {
             return YearsFragment()
         }

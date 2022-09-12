@@ -50,7 +50,7 @@ class HomeActivity : AppCompatActivity() {
 
         val viewPager = findViewById<ViewPager2>(R.id.view_pager)
 
-        val viewPagerAdapter = HomeViewPagerAdapter(supportFragmentManager, this.lifecycle)
+        val viewPagerAdapter = HomeViewPagerAdapter(supportFragmentManager, this.lifecycle, this)
 
         viewPager.adapter = viewPagerAdapter
 
@@ -167,11 +167,14 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        if (bottomSheetFlag) {
-            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        } else {
-            super.onBackPressed()
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (bottomSheetFlag) {
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else {
+                finish()
+            }
         }
+        return super.onKeyDown(keyCode, event)
     }
 }

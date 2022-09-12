@@ -11,6 +11,7 @@ import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.matamapp.matam.AlbumActivity
+import com.matamapp.matam.AlbumListActivity
 import com.matamapp.matam.HomeActivity
 import com.matamapp.matam.R
 
@@ -245,6 +246,11 @@ class MediaPlayerFragment : Fragment() {
         try {
             (activity as AlbumActivity).toggleBottomSheet()
         } catch (e: Exception) {
+        }
+        try {
+            (activity as AlbumListActivity).toggleBottomSheet()
+        } catch (e: Exception) {
+
         }
     }
 

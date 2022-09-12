@@ -24,6 +24,6 @@ class AlbumAdapter : RecyclerView.Adapter<AlbumAdapter.vHolder>() {
     }
 
     class vHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title = itemView.findViewById<TextView>(R.id.track_title)
+        val title = itemView.findViewById<TextView>(R.id.album_title)
     }
 }
