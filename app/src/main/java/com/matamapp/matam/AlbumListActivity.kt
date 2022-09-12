@@ -1,5 +1,6 @@
 package com.matamapp.matam
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -9,7 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -106,7 +106,7 @@ class AlbumListActivity : AppCompatActivity() {
                 return true
             }
             R.id.search -> {
-                Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
             R.id.playlist -> {

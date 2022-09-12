@@ -1,5 +1,6 @@
 package com.matamapp.matam
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -94,7 +95,7 @@ class AlbumActivity : AppCompatActivity() {
                 return true
             }
             R.id.search -> {
-                Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
             R.id.playlist -> {
