@@ -8,11 +8,17 @@ import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.matamapp.matam.adapters.AlbumAdapter
+import com.matamapp.matam.adapters.NauhaKhuwanAdapter
 
 class SearchActivity : AppCompatActivity() {
 
-    var hasText = false
-    val context = this
+    private var hasText = false
+    private val context = this
+    private lateinit var nauhaKhuwanRecyclerView: RecyclerView
+    private lateinit var tracksRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +39,6 @@ class SearchActivity : AppCompatActivity() {
 
         searchBox.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                //TODO("Not yet implemented")
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -57,9 +62,22 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                //TODO("Not yet implemented")
             }
 
         })
+
+        nauhaKhuwanRecyclerView = findViewById(R.id.nauha_khuwan_recyclerview)
+        tracksRecyclerView = findViewById(R.id.tracks_recyclerview)
+
+        nauhaKhuwanRecyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        tracksRecyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        val nauhaKhuwanAdapter = NauhaKhuwanAdapter(this)
+        val albumAdapter = AlbumAdapter()
+
+        nauhaKhuwanRecyclerView.adapter = nauhaKhuwanAdapter
+        tracksRecyclerView.adapter = albumAdapter
     }
 }

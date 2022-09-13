@@ -10,41 +10,29 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.flexbox.AlignItems
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.matamapp.matam.adapters.AlbumListAdapter
 import com.matamapp.matam.fragments.MediaPlayerFragment
 
-class AlbumListActivity : AppCompatActivity() {
+class ProfileActivity : AppCompatActivity() {
 
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetFlag = false
-    private lateinit var playerFragment: MediaPlayerFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_album_list)
+        setContentView(R.layout.activity_profile)
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = "Album List"
-        val recyclerView = findViewById<RecyclerView>(R.id.album_list_view)
-        recyclerView.layoutManager = FlexboxLayoutManager(this).apply {
-            justifyContent = JustifyContent.CENTER
-            alignItems = AlignItems.CENTER
-        }
-        val adapter = AlbumListAdapter()
-        recyclerView.adapter = adapter
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         setPlayer()
     }
 
     private fun setPlayer() {
-        playerFragment = MediaPlayerFragment()
+        val playerFragment = MediaPlayerFragment()
         supportFragmentManager.beginTransaction().replace(R.id.playerPlaceholder, playerFragment)
             .commitAllowingStateLoss()
 
@@ -85,10 +73,6 @@ class AlbumListActivity : AppCompatActivity() {
         }
     }
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        playerFragment.setVolume(keyCode)
-        return super.onKeyDown(keyCode, event)
-    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
@@ -97,12 +81,7 @@ class AlbumListActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
-            }
             R.id.profile -> {
-                startActivity(Intent(this, ProfileActivity::class.java))
                 return true
             }
             R.id.search -> {
@@ -113,12 +92,15 @@ class AlbumListActivity : AppCompatActivity() {
                 Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
                 return true
             }
+            android.R.id.home -> {
+                this.finish()
+                return true
+            }
             else -> {
                 return super.onOptionsItemSelected(item)
             }
         }
     }
-
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {

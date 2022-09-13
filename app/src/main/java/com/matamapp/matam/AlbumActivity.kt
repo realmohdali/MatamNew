@@ -77,7 +77,7 @@ class AlbumActivity : AppCompatActivity() {
     }
 
     private fun setAlbum() {
-        val albumView = findViewById<RecyclerView>(R.id.album_view)
+        val albumView = findViewById<RecyclerView>(R.id.new_release_recyclerview)
         val adapter = AlbumAdapter()
         albumView.layoutManager = LinearLayoutManager(this)
         albumView.adapter = adapter
@@ -91,7 +91,7 @@ class AlbumActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.profile -> {
-                Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, ProfileActivity::class.java))
                 return true
             }
             R.id.search -> {
