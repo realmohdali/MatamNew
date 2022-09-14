@@ -1,6 +1,7 @@
 package com.matamapp.matam.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
 import android.view.KeyEvent
@@ -189,6 +190,10 @@ class MediaPlayerFragment : Fragment() {
             }
         })
 
+        queueButton.setOnClickListener {
+            showQueue()
+        }
+
     }
     //End Set Listeners for click events
 
@@ -230,7 +235,7 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun showQueue() {
-        TODO("Do something when user hit queue button")
+        startActivity(Intent(context, QueueActivity::class.java))
     }
     //End Player Handling functions
 
