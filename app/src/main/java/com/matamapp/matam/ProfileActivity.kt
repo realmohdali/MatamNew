@@ -1,17 +1,17 @@
 package com.matamapp.matam
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.fragments.MediaPlayerFragment
+import kotlinx.android.synthetic.main.activity_profile.*
+import kotlinx.android.synthetic.main.confirmation_dialog.*
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -23,10 +23,42 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_profile)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        manage_playlist_card.setOnClickListener {
+
+        }
+
+        reset_password_card.setOnClickListener {
+
+        }
+
+        logout_card.setOnClickListener {
+            val dialog = Dialog(this)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setCancelable(false)
+            dialog.setContentView(R.layout.confirmation_dialog)
+            dialog.yes_button?.setOnClickListener {
+                val sharedPreferences =
+                    getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
+                val preferencesEditor = sharedPreferences.edit()
+                preferencesEditor.putString(CommonData.SESSION_TOKEN, "0")
+                preferencesEditor.apply()
+
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+
+            dialog.no_button?.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
 
         setPlayer()
     }
