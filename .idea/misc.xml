@@ -3,39 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/bottom_navigation_color.xml" value="0.309" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_favorite_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_pause_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_queue_music_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_shuffle_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_skip_next_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/drawable/ic_baseline_skip_previous_24.xml" value="0.277" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_album.xml" value="0.28940217391304346" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_album_list.xml" value="0.33" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_home.xml" value="0.33242753623188404" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_login.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_main.xml" value="0.358695652173913" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_profile.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_queue.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_search.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_signup.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/album_item.xml" value="0.4140550807217474" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/album_list_item.xml" value="0.31666666666666665" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/confirmation_dialog.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/fragment_home.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/fragment_media_player.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/fragment_nauha_khuwan.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/fragment_years.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/loading_dialog.xml" value="0.31666666666666665" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/mini_player.xml" value="0.6790009250693803" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/nauha_khuwan_item.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/player.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/queue_item.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/year_item.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/menu/bottom_navigation.xml" value="0.3175213675213675" />
-        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/menu/main.xml" value="0.38697916666666665" />
+        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_change_password.xml" value="0.31765711842667804" />
+        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_request_password_reset.xml" value="0.31765711842667804" />
+        <entry key="..\:/Ali's Data/App/matam/app-source-code/app/src/main/res/layout/activity_reset_password.xml" value="0.31765711842667804" />
       </map>
     </option>
   </component>

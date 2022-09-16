@@ -5,12 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import kotlinx.android.synthetic.main.activity_login.*
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
@@ -18,8 +20,16 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+
+        val loginEmail = findViewById<EditText>(R.id.loginEmail)
+        val loginPassword = findViewById<EditText>(R.id.loginPassword)
+        val loginButton = findViewById<Button>(R.id.loginButton)
+        val signupButton = findViewById<Button>(R.id.signupButton)
+        val forgetPasswordLogin = findViewById<TextView>(R.id.forgetPasswordLogin)
         loginEmail.requestFocus()
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+
 
         loginButton.setOnClickListener {
             val emailText = loginEmail.text.toString()
@@ -89,11 +99,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         forgetPasswordLogin.setOnClickListener {
-            Toast.makeText(
-                applicationContext,
-                "Forgot Password",
-                Toast.LENGTH_SHORT
-            ).show()
+            startActivity(Intent(this, RequestPasswordResetActivity::class.java))
         }
     }
 

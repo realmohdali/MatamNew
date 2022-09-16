@@ -4,14 +4,14 @@ import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.fragments.MediaPlayerFragment
-import kotlinx.android.synthetic.main.activity_profile.*
-import kotlinx.android.synthetic.main.confirmation_dialog.*
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -27,22 +27,25 @@ class ProfileActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        manage_playlist_card.setOnClickListener {
+        val managePlaylistCard = findViewById<CardView>(R.id.manage_playlist_card)
+        val resetPasswordCard = findViewById<CardView>(R.id.reset_password_card)
+        val logoutCard = findViewById<CardView>(R.id.logout_card)
+
+        managePlaylistCard.setOnClickListener {
 
         }
 
-        reset_password_card.setOnClickListener {
-
+        resetPasswordCard.setOnClickListener {
+            startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
 
-        logout_card.setOnClickListener {
+        logoutCard.setOnClickListener {
             val dialog = Dialog(this)
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setCancelable(false)
             dialog.setContentView(R.layout.confirmation_dialog)
-            dialog.yes_button?.setOnClickListener {
-                val sharedPreferences =
-                    getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
+            dialog.findViewById<Button>(R.id.yes_button).setOnClickListener {
+                val sharedPreferences = getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
                 val preferencesEditor = sharedPreferences.edit()
                 preferencesEditor.putString(CommonData.SESSION_TOKEN, "0")
                 preferencesEditor.apply()
@@ -53,7 +56,7 @@ class ProfileActivity : AppCompatActivity() {
                 finish()
             }
 
-            dialog.no_button?.setOnClickListener {
+            dialog.findViewById<Button>(R.id.no_button).setOnClickListener {
                 dialog.dismiss()
             }
 

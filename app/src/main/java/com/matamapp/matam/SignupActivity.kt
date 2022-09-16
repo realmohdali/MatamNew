@@ -5,18 +5,27 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import kotlinx.android.synthetic.main.activity_signup.*
 import org.json.JSONObject
 
 class SignupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+
+        val fullNameSignup = findViewById<EditText>(R.id.fullNameSignup)
+        val signupButtonSignup = findViewById<Button>(R.id.signupButtonSignup)
+        val emailSignup = findViewById<EditText>(R.id.emailSignup)
+        val passwordSignup = findViewById<EditText>(R.id.passwordSignup)
+        val confirmPasswordSignup = findViewById<EditText>(R.id.confirmPasswordSignup)
+        val alreadyRegisteredSignup = findViewById<TextView>(R.id.alreadyRegisteredSignup)
 
         fullNameSignup.requestFocus()
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
