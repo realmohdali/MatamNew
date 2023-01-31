@@ -3,6 +3,7 @@ package com.matamapp.matam
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
@@ -43,6 +44,9 @@ class SignupActivity : AppCompatActivity() {
             } else if (emailText.isEmpty()) {
                 Toast.makeText(applicationContext, "Email is required", Toast.LENGTH_SHORT)
                     .show()
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(emailText).matches()) {
+                Toast.makeText(applicationContext, "Please enter a valid email", Toast.LENGTH_SHORT)
+                    .show()
             } else if (passwordText.isEmpty()) {
                 Toast.makeText(applicationContext, "Password is required", Toast.LENGTH_SHORT)
                     .show()
@@ -69,22 +73,32 @@ class SignupActivity : AppCompatActivity() {
                     url,
                     Response.Listener { response ->
                         val jsonObject = JSONObject(response)
-                        val code = jsonObject.getString("code")
-                        if (code == "200") {
-                            val sharedPreferences =
-                                getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
-                            val preferenceEditor = sharedPreferences.edit()
-                            preferenceEditor.putString(
-                                CommonData.SESSION_TOKEN,
-                                jsonObject.getString("data")
-                            )
-                            preferenceEditor.apply()
+                        when (jsonObject.getString("code")) {
+                            "200" -> {
+                                val sharedPreferences =
+                                    getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
+                                val preferenceEditor = sharedPreferences.edit()
+                                preferenceEditor.putString(
+                                    CommonData.SESSION_TOKEN,
+                                    jsonObject.getString("data")
+                                )
+                                preferenceEditor.apply()
 
-                            startActivity(Intent(this, HomeActivity::class.java))
-                            finish()
-                        } else {
-                            errorToast()
-                            dialog.dismiss()
+                                startActivity(Intent(this, HomeActivity::class.java))
+                                finish()
+                            }
+                            "10" -> {
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Email is already registered",
+                                    Toast.LENGTH_LONG
+                                )
+                                    .show()
+                            }
+                            else -> {
+                                errorToast()
+                                dialog.dismiss()
+                            }
                         }
                     },
                     Response.ErrorListener {

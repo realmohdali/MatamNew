@@ -11,11 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.NestedScrollView
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.matamapp.matam.adapters.HomeViewPagerAdapter
+import com.matamapp.matam.fragments.HomeFragment
 import com.matamapp.matam.fragments.MediaPlayerFragment
+import com.matamapp.matam.fragments.NauhaKhuwanFragment
+import com.matamapp.matam.fragments.YearsFragment
 
 class HomeActivity : AppCompatActivity() {
 
@@ -31,8 +32,6 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
         scale = resources.displayMetrics.density
-
-        //findViewById<ConstraintLayout>(R.id.player).visibility = View.GONE
         nestedScrollView = findViewById(R.id.nested_scroll_view)
 
 
@@ -49,39 +48,30 @@ class HomeActivity : AppCompatActivity() {
         val navigationNauhaKhuwan = R.id.navigation_Nauha_Khuwan
         val navigationYears = R.id.navigation_year
 
-        val viewPager = findViewById<ViewPager2>(R.id.view_pager)
-
-        val viewPagerAdapter = HomeViewPagerAdapter(supportFragmentManager, this.lifecycle, this)
-
-        viewPager.adapter = viewPagerAdapter
-
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                if (position == 0) {
-                    bottomNavigationView.selectedItemId = navigationHome
-                } else if (position == 1) {
-                    bottomNavigationView.selectedItemId = navigationNauhaKhuwan
-                } else {
-                    bottomNavigationView.selectedItemId = navigationYears
-                }
-            }
-        })
+        val homeFragment = HomeFragment()
+        val nauhaKhuwanFragment = NauhaKhuwanFragment(this)
+        val yearsFragment = YearsFragment()
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.navigation_home
+        supportFragmentManager.beginTransaction().replace(R.id.frame, homeFragment)
+            .commit()
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 navigationHome -> {
-                    viewPager.currentItem = 0
+                    supportFragmentManager.beginTransaction().replace(R.id.frame, homeFragment)
+                        .commit()
                     true
                 }
                 navigationNauhaKhuwan -> {
-                    viewPager.currentItem = 1
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.frame, nauhaKhuwanFragment)
+                        .commit()
                     true
                 }
                 navigationYears -> {
-                    viewPager.currentItem = 2
+                    supportFragmentManager.beginTransaction().replace(R.id.frame, yearsFragment)
+                        .commit()
                     true
                 }
                 else -> {

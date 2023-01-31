@@ -74,10 +74,10 @@ class SearchActivity : AppCompatActivity() {
         tracksRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        val nauhaKhuwanAdapter = NauhaKhuwanAdapter(this)
+        //val nauhaKhuwanAdapter = NauhaKhuwanAdapter(this)
         val albumAdapter = AlbumAdapter()
 
-        nauhaKhuwanRecyclerView.adapter = nauhaKhuwanAdapter
+        //nauhaKhuwanRecyclerView.adapter = nauhaKhuwanAdapter
         tracksRecyclerView.adapter = albumAdapter
     }
 }

@@ -59,7 +59,9 @@ class RequestPasswordResetActivity : AppCompatActivity() {
                                 dialog.dismiss()
                             }
                             "200" -> {
-                                startActivity(Intent(this, ResetPasswordActivity::class.java))
+                                intent = Intent(this, ResetPasswordActivity::class.java)
+                                intent.putExtra("email", emailIdText)
+                                startActivity(intent)
                                 finish()
                             }
                             else -> {

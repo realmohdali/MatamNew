@@ -41,16 +41,16 @@ class HomeFragment : Fragment() {
         popularRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        nauhaKhuwanAdapter = NauhaKhuwanAdapter(xmlView.context)
+        //nauhaKhuwanAdapter = NauhaKhuwanAdapter(xmlView.context)
 
         return xmlView
     }
 
     override fun onResume() {
         super.onResume()
-        newReleaseRecyclerView.adapter = nauhaKhuwanAdapter
-        trendingRecyclerView.adapter = nauhaKhuwanAdapter
-        popularRecyclerView.adapter = nauhaKhuwanAdapter
+        //newReleaseRecyclerView.adapter = nauhaKhuwanAdapter
+        //trendingRecyclerView.adapter = nauhaKhuwanAdapter
+        //popularRecyclerView.adapter = nauhaKhuwanAdapter
     }
 
     companion object

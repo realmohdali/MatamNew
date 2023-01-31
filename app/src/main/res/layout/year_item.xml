@@ -6,11 +6,11 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardBackgroundColor="@color/primary"
-    app:cardCornerRadius="40dp">
+    app:cardCornerRadius="60dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="80dp"
-        android:layout_height="80dp">
+        android:layout_width="100dp"
+        android:layout_height="100dp">
 
         <TextView
             android:id="@+id/year_name"
@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:text="2022"
             android:textColor="@color/red"
-            android:textSize="28sp"
+            android:textSize="34sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -3,6 +3,7 @@ package com.matamapp.matam
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
@@ -35,7 +36,12 @@ class LoginActivity : AppCompatActivity() {
             val emailText = loginEmail.text.toString()
             val passwordText = loginPassword.text.toString()
             if (emailText.isEmpty()) {
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
                 Toast.makeText(applicationContext, "Email should not be empty", Toast.LENGTH_SHORT)
+                    .show()
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(emailText).matches()) {
+                Toast.makeText(applicationContext, "Please enter a valid email", Toast.LENGTH_SHORT)
                     .show()
             } else if (passwordText.isEmpty()) {
                 Toast.makeText(
