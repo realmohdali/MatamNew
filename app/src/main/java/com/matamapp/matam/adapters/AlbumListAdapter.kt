@@ -5,13 +5,14 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.matamapp.matam.AlbumActivity
 import com.matamapp.matam.R
+import com.matamapp.matam.data.AlbumData
 
-class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
-    private lateinit var context: Context
+class AlbumListAdapter(private var context: Context, private var albumList: MutableList<AlbumData>) : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
         return ViewHolder(
@@ -23,14 +24,17 @@ class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
         holder.cardView.setOnClickListener {
             context.startActivity(Intent(context, AlbumActivity::class.java))
         }
+        val name = albumList[position].name
+        holder.albumName.text = name
     }
 
     override fun getItemCount(): Int {
-        return 8
+        return albumList.size
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cardView: CardView = itemView.findViewById(R.id.album_list_item)
+        val albumName: TextView = itemView.findViewById(R.id.album_name)
     }
 
 }

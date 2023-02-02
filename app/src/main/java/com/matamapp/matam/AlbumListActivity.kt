@@ -6,23 +6,36 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.adapters.AlbumListAdapter
+import com.matamapp.matam.adapters.NauhaKhuwanAdapter
+import com.matamapp.matam.data.AlbumData
+import com.matamapp.matam.data.ArtistData
 import com.matamapp.matam.fragments.MediaPlayerFragment
+import org.json.JSONObject
 
 class AlbumListActivity : AppCompatActivity() {
 
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetFlag = false
     private lateinit var playerFragment: MediaPlayerFragment
+    private lateinit var caller: String
+    private lateinit var id: String
+    private var albumList: MutableList<AlbumData> = mutableListOf()
+    private lateinit var loader: ProgressBar
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,16 +44,70 @@ class AlbumListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = "Album List"
-        val recyclerView = findViewById<RecyclerView>(R.id.album_list_view)
+        supportActionBar?.title = "Albums"
+        val intent: Intent = intent
+        caller = intent.getStringExtra("caller").toString()
+        id = intent.getStringExtra("id").toString()
+        loader = findViewById(R.id.loader)
+
+        getData()
+
+        recyclerView = findViewById(R.id.album_list_view)
         recyclerView.layoutManager = FlexboxLayoutManager(this).apply {
             justifyContent = JustifyContent.CENTER
             alignItems = AlignItems.CENTER
         }
-        val adapter = AlbumListAdapter()
-        recyclerView.adapter = adapter
-
         setPlayer()
+    }
+
+    private fun getData() {
+
+        loader.visibility = View.VISIBLE
+
+        var url = CommonData.API_URL + "albums/"
+        url += if (caller == "artist") {
+            "artist/$id"
+        } else {
+            "year/$id"
+        }
+
+        val queue = Volley.newRequestQueue(this)
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                val jsonResponse = JSONObject(response)
+                val code = jsonResponse.getString("code")
+                if (code == "200") {
+                    val albumListData = jsonResponse.optJSONArray("data")
+                    if(albumListData != null) {
+                        for(i in 0 until albumListData.length()) {
+                            val album = albumListData.getJSONObject(i)
+                            val id = album.optString("id")
+                            val name = album.optString("name")
+                            val cover = album.optString("album_cover")
+                            val featured = album.optString("featured")
+                            val newRelease = album.optString("new_release")
+
+                            val albumData = AlbumData(id,name,cover,featured,newRelease)
+                            albumList.add(albumData)
+                        }
+                        val adapter = AlbumListAdapter(this, albumList)
+                        recyclerView.adapter = adapter
+                        loader.visibility = View.GONE
+                    }
+                } else {
+                    Toast.makeText(this, jsonResponse.getString("message"), Toast.LENGTH_SHORT)
+                        .show()
+                }
+            },
+            {
+                Toast.makeText(
+                    this,
+                    "That didn't work!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            })
+        queue.add(stringRequest)
     }
 
     private fun setPlayer() {
