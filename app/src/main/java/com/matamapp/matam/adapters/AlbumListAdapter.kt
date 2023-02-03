@@ -22,7 +22,10 @@ class AlbumListAdapter(private var context: Context, private var albumList: Muta
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.cardView.setOnClickListener {
-            context.startActivity(Intent(context, AlbumActivity::class.java))
+            val intent = Intent(context, AlbumActivity::class.java)
+            intent.putExtra("album_id", albumList[position].id)
+            intent.putExtra("album_name", albumList[position].name)
+            context.startActivity(intent)
         }
         val name = albumList[position].name
         holder.albumName.text = name

@@ -75,9 +75,9 @@ class SearchActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         //val nauhaKhuwanAdapter = NauhaKhuwanAdapter(this)
-        val albumAdapter = AlbumAdapter()
+        //val albumAdapter = AlbumAdapter()
 
         //nauhaKhuwanRecyclerView.adapter = nauhaKhuwanAdapter
-        tracksRecyclerView.adapter = albumAdapter
+        //tracksRecyclerView.adapter = albumAdapter
     }
 }

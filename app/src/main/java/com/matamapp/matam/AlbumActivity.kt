@@ -6,15 +6,23 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.adapters.AlbumAdapter
+import com.matamapp.matam.data.ArtistData
+import com.matamapp.matam.data.TrackData
+import com.matamapp.matam.data.YearData
 import com.matamapp.matam.fragments.MediaPlayerFragment
+import org.json.JSONObject
 
 class AlbumActivity : AppCompatActivity() {
 
@@ -25,13 +33,15 @@ class AlbumActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        //toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.mini_app_icon)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = intent.getStringExtra("album_name").toString()
+
+        val albumId = intent.getStringExtra("album_id").toString()
 
         setPlayer()
-        setAlbum()
+        setAlbum(albumId)
     }
 
     private fun setPlayer() {
@@ -76,11 +86,61 @@ class AlbumActivity : AppCompatActivity() {
         }
     }
 
-    private fun setAlbum() {
+    private fun setAlbum(albumId: String) {
+        val albumLoader: ProgressBar = findViewById(R.id.album_loader)
+        albumLoader.visibility = View.VISIBLE
         val albumView = findViewById<RecyclerView>(R.id.new_release_recyclerview)
-        val adapter = AlbumAdapter()
         albumView.layoutManager = LinearLayoutManager(this)
-        albumView.adapter = adapter
+
+        val albumTrackList: MutableList<TrackData> = mutableListOf()
+        val url = CommonData.API_URL + "albums/album_tracks/$albumId"
+
+        val queue = Volley.newRequestQueue(this)
+        val stringRequest = StringRequest(
+            Request.Method.GET,
+            url,
+            { response ->
+                val jsonResponse = JSONObject(response)
+                val code = jsonResponse.getString("code")
+                if (code == "200") {
+                    val tracks = jsonResponse.optJSONArray("data")
+                    if (tracks != null) {
+                        for (i in 0 until tracks.length()) {
+                            val data = tracks.getJSONObject(i)
+                            val track = data.optJSONObject("track")
+                            val id = track?.optString("id").toString()
+                            val title = track?.optString("title").toString()
+                            val trackURL = track?.optString("track_url").toString()
+                            val trackImage = track?.optString("track_image").toString()
+                            val artist = track?.optJSONObject("artist")
+                            val name = artist?.optString("name").toString()
+                            val image = artist?.optString("image").toString()
+                            val year = track?.optJSONObject("year")
+                            val yearAD = year?.optString("year_ad").toString()
+                            val yearHijri = year?.optString("year_hijri").toString()
+
+                            val artistData = ArtistData("", name, image, "")
+                            val yearData = YearData(yearAD, yearHijri)
+
+                            val trackData =
+                                TrackData(id, title, trackURL, trackImage, artistData, yearData)
+
+                            albumTrackList.add(trackData)
+                        }
+                        albumView.adapter = AlbumAdapter(this, albumTrackList)
+                        albumLoader.visibility = View.GONE
+                    }
+                } else {
+                    Toast.makeText(this, jsonResponse.getString("message"), Toast.LENGTH_SHORT)
+                        .show()
+                }
+            },
+            {
+
+            })
+        queue.add(stringRequest)
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
