@@ -1,13 +1,16 @@
 package com.matamapp.matam.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.matamapp.matam.R
 import com.matamapp.matam.data.TrackData
+import com.matamapp.matam.mediaPlayer.PlayerService
 
 class AlbumAdapter(val context: Context, private val trackList: MutableList<TrackData>) : RecyclerView.Adapter<AlbumAdapter.vHolder>() {
 
@@ -19,6 +22,12 @@ class AlbumAdapter(val context: Context, private val trackList: MutableList<Trac
     override fun onBindViewHolder(holder: vHolder, position: Int) {
         val title = trackList[position].title
         holder.title.text = title
+        val trackURL = trackList[position].trackURl
+        holder.card.setOnClickListener{
+            val intent = Intent(context, PlayerService::class.java)
+            intent.putExtra("track_url", trackURL)
+            context.startService(intent)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -27,5 +36,6 @@ class AlbumAdapter(val context: Context, private val trackList: MutableList<Trac
 
     class vHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.album_title)
+        val card: CardView = itemView.findViewById(R.id.album_list_item)
     }
 }
