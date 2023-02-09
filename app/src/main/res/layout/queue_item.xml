@@ -1,5 +1,6 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/queue_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -22,14 +23,14 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/album_art"
+                android:id="@+id/queue_track_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/nadeem_sarwar" />
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/album_title"
+            android:id="@+id/queue_track_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -39,21 +40,21 @@
             android:text="Title of the Nauha (The full title)"
             android:textColor="@color/white"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/artist_name"
+            app:layout_constraintBottom_toTopOf="@+id/queue_track_artist"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/image_holder"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/artist_name"
+            android:id="@+id/queue_track_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Artist Name"
             android:textColor="@color/white"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/album_title"
-            app:layout_constraintTop_toBottomOf="@+id/album_title" />
+            app:layout_constraintStart_toStartOf="@+id/queue_track_title"
+            app:layout_constraintTop_toBottomOf="@+id/queue_track_title" />
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"

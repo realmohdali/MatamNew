@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.matamapp.matam.adapters.QueueAdapter
+import com.matamapp.matam.mediaPlayer.QueueManagement
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 
@@ -80,9 +81,14 @@ class QueueActivity : AppCompatActivity() {
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    queueAdapter.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
+                    if (viewHolder.absoluteAdapterPosition != QueueManagement.currentPosition) {
+                        if (viewHolder.absoluteAdapterPosition < QueueManagement.currentPosition) {
+                            QueueManagement.currentPosition -= 1
+                        }
+                        QueueManagement.currentQueue.removeAt(viewHolder.absoluteAdapterPosition)
+                        queueAdapter.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
+                    }
                 }
-
             })
 
         itemTouchHelper.attachToRecyclerView(queueRecyclerView)

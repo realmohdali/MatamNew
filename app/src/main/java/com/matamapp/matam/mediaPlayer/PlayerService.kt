@@ -11,6 +11,13 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.matamapp.matam.CommonData
+import com.matamapp.matam.fragments.MediaPlayerFragment
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.LOADING_COMPLETE
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
 import java.io.IOException
 
 class PlayerService : Service(),
@@ -21,6 +28,8 @@ class PlayerService : Service(),
     MediaPlayer.OnInfoListener,
     MediaPlayer.OnBufferingUpdateListener,
     AudioManager.OnAudioFocusChangeListener {
+
+    private val broadcastManager = LocalBroadcastManager.getInstance(this)
 
     private lateinit var audioManager: AudioManager
 
@@ -50,6 +59,8 @@ class PlayerService : Service(),
             e.printStackTrace()
         }
 
+        trackURL = formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
+
         if (!requestAudioFocus()) {
             stopSelf()
         }
@@ -60,13 +71,23 @@ class PlayerService : Service(),
         return super.onStartCommand(intent, flags, startId)
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        CommonData.serviceRunning = true
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         stopMedia()
         mediaPlayer?.release()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             removeAudioFocus()
         }
+
+        QueueManagement.currentQueue.clear()
+        QueueManagement.currentPosition = -1
+        CommonData.serviceRunning = false
+
+        super.onDestroy()
     }
 
     //Service LifeCycle Functions End
@@ -79,6 +100,8 @@ class PlayerService : Service(),
 
     override fun onPrepared(mp: MediaPlayer?) {
         playMedia()
+        MediaPlayerFragment.isLoading = false
+        broadcastManager.sendBroadcast(Intent(LOADING_COMPLETE))
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -101,6 +124,18 @@ class PlayerService : Service(),
     }
 
     override fun onInfo(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        when (what) {
+            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                MediaPlayerFragment.isLoading = true
+                MediaPlayerFragment.isPlaying = false
+                broadcastManager.sendBroadcast(Intent(BUFFERING_START))
+            }
+            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                MediaPlayerFragment.isLoading = false
+                MediaPlayerFragment.isPlaying = true
+                broadcastManager.sendBroadcast(Intent(BUFFERING_END))
+            }
+        }
         return false
     }
 
@@ -113,6 +148,7 @@ class PlayerService : Service(),
     //Media Player Init and Controller Functions
 
     private fun initMediaPlayer() {
+        setUI()
         mediaPlayer = MediaPlayer()
         mediaPlayer?.setOnCompletionListener(this)
         mediaPlayer?.setOnErrorListener(this)
@@ -138,12 +174,14 @@ class PlayerService : Service(),
     private fun playMedia() {
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer?.start()
+            MediaPlayerFragment.isPlaying = true
         }
     }
 
     private fun stopMedia() {
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer?.stop()
+            MediaPlayerFragment.isPlaying = false
         }
     }
 
@@ -151,6 +189,14 @@ class PlayerService : Service(),
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()
+            MediaPlayerFragment.isPlaying = true
+        }
+    }
+
+    private fun pauseMedia() {
+        if(mediaPlayer!!.isPlaying) {
+            mediaPlayer?.pause()
+            MediaPlayerFragment.isPlaying = false
         }
     }
 
@@ -223,6 +269,32 @@ class PlayerService : Service(),
     }
 
     //Audio Focus Related Functions End
+
+    //Send Broadcasts Related Functions
+
+
+    //Send Broadcasts Related Functions End
+
+
+    //Set Player UI Variables Function
+
+    private fun setUI() {
+        MediaPlayerFragment.imageURL =
+            if (QueueManagement.currentQueue[QueueManagement.currentPosition].trackImage != "null") {
+                QueueManagement.currentQueue[QueueManagement.currentPosition].trackImage
+            } else {
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.image
+            }
+        MediaPlayerFragment.trackTitle =
+            QueueManagement.currentQueue[QueueManagement.currentPosition].title
+        MediaPlayerFragment.trackArtist =
+            QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name
+        MediaPlayerFragment.isLoading = true
+
+       broadcastManager.sendBroadcast(Intent(NEW_AUDIO))
+    }
+
+    //Set Player UI Variables Function END
 
     private fun formatURL(rawURL: String): String {
         val formattedURL = rawURL.replace(" ", "%20")

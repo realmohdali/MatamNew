@@ -10,5 +10,6 @@ class CommonData {
         const val PREFERENCES = "preferences"
         const val SESSION_TOKEN = "session_token"
         val DEVICE = Build.MANUFACTURER + " " + Build.MODEL
+        var serviceRunning = false
     }
 }

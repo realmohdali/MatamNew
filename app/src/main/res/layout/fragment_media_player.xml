@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary">
@@ -84,30 +85,36 @@
                 android:padding="10dp"
                 android:scaleType="centerInside"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/miniPlayPause"
+                app:layout_constraintEnd_toStartOf="@+id/loadingPlay"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_skip_previous_24" />
 
-            <ImageButton
-                android:id="@+id/miniPlayPause"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/loadingPlay"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:adjustViewBounds="true"
-                android:backgroundTint="@color/primary"
-                android:padding="5dp"
-                android:scaleType="centerInside"
+                app:cardBackgroundColor="@color/primary"
                 app:layout_constraintBottom_toBottomOf="@+id/miniPrev"
                 app:layout_constraintEnd_toStartOf="@+id/miniNext"
-                app:layout_constraintTop_toTopOf="@+id/miniPrev"
-                app:srcCompat="@drawable/ic_baseline_pause_24" />
+                app:layout_constraintTop_toTopOf="@+id/miniPrev">
 
-            <ProgressBar
-                android:id="@+id/miniLoading"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                app:layout_constraintBottom_toBottomOf="@+id/miniPrev"
-                app:layout_constraintEnd_toStartOf="@+id/miniNext"
-                app:layout_constraintTop_toTopOf="@+id/miniPrev" />
+                <ImageButton
+                    android:id="@+id/miniPlayPause"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:adjustViewBounds="true"
+                    android:backgroundTint="@color/primary"
+                    android:padding="5dp"
+                    android:scaleType="centerInside"
+
+                    app:srcCompat="@drawable/ic_baseline_pause_24" />
+
+                <ProgressBar
+                    android:id="@+id/miniLoading"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" />
+            </androidx.cardview.widget.CardView>
+
 
             <ImageButton
                 android:id="@+id/miniNext"
@@ -118,9 +125,9 @@
                 android:backgroundTint="@color/primary"
                 android:padding="10dp"
                 android:scaleType="centerInside"
-                app:layout_constraintBottom_toBottomOf="@+id/miniPlayPause"
+                app:layout_constraintBottom_toBottomOf="@+id/loadingPlay"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/miniPlayPause"
+                app:layout_constraintTop_toTopOf="@+id/loadingPlay"
                 app:srcCompat="@drawable/ic_baseline_skip_next_24" />
 
 

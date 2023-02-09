@@ -1,7 +1,9 @@
 package com.matamapp.matam.fragments
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
 import android.view.KeyEvent
@@ -10,8 +12,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.bumptech.glide.Glide
 import com.matamapp.matam.*
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
 
 class MediaPlayerFragment : Fragment() {
     //Static Variables
@@ -66,12 +73,19 @@ class MediaPlayerFragment : Fragment() {
     private lateinit var loadingMini: ProgressBar
     private lateinit var nextButtonMini: ImageView
 
+    //Broadcast Manager variable
+    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     //Create and resume MediaPlayer Fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        localBroadcastManager = LocalBroadcastManager.getInstance(requireContext())
+        registerNewAudio()
+        registerLoadingComplete()
+        registerBufferingStart()
+        registerBufferingEnd()
         // Inflate the layout for this fragment
         playerView = inflater.inflate(R.layout.fragment_media_player, container, false)
         miniPlayer = playerView.findViewById<CardView>(R.id.miniPlayer)
@@ -84,6 +98,14 @@ class MediaPlayerFragment : Fragment() {
         setMiniPlayer()
         setUpPlayer()
         setUpClickListeners()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        localBroadcastManager.unregisterReceiver(newAudio)
+        localBroadcastManager.unregisterReceiver(loadingComplete)
+        localBroadcastManager.unregisterReceiver(bufferingStart)
+        localBroadcastManager.unregisterReceiver(bufferingEnd)
     }
     //End create and resume MediaPlayer Fragment
 
@@ -122,6 +144,37 @@ class MediaPlayerFragment : Fragment() {
 
     //setup main player
     private fun setUpPlayer() {
+        if (CommonData.serviceRunning) {
+            Glide.with(requireContext()).load(imageURL).into(trackImageView)
+            trackTitleView.text = trackTitle
+            artistNameView.text = trackArtist
+
+            if (isLoading) {
+                playPause.visibility = View.GONE
+                loadingBuffering.visibility = View.VISIBLE
+            } else {
+                playPause.visibility = View.VISIBLE
+                loadingBuffering.visibility = View.GONE
+            }
+
+            if (isPlaying) {
+                playPause.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_pause_24,
+                        null
+                    )
+                )
+            } else if (!isLoading) {
+                playPause.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_play_arrow_24,
+                        null
+                    )
+                )
+            }
+        }
         trackTitleView.isSelected = true
         setUpVolumeBar()
     }
@@ -129,6 +182,37 @@ class MediaPlayerFragment : Fragment() {
 
     //setup mini player
     private fun setMiniPlayer() {
+        if (CommonData.serviceRunning) {
+            Glide.with(requireContext()).load(imageURL).into(trackImageViewMini)
+            trackTitleMini.text = trackTitle
+            artistNameMini.text = trackArtist
+
+            if (isLoading) {
+                playPauseMini.visibility = View.GONE
+                loadingMini.visibility = View.VISIBLE
+            } else {
+                playPauseMini.visibility = View.VISIBLE
+                loadingMini.visibility = View.GONE
+            }
+
+            if (isPlaying) {
+                playPauseMini.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_pause_24,
+                        null
+                    )
+                )
+            } else if (!isLoading) {
+                playPauseMini.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_play_arrow_24,
+                        null
+                    )
+                )
+            }
+        }
         trackTitleMini.isSelected = true
     }
     //end setup mini player
@@ -199,7 +283,7 @@ class MediaPlayerFragment : Fragment() {
 
     //Player Handling functions
     private fun seekTo(position: Int) {
-        TODO("Do something when user seek to a position")
+        //TODO("Do something when user seek to a position")
     }
 
     private fun changeVolume(volumeLevel: Int) {
@@ -239,23 +323,87 @@ class MediaPlayerFragment : Fragment() {
     }
     //End Player Handling functions
 
+    //Broadcast Receiver functions
+
+    private val newAudio = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            setUpPlayer()
+            setMiniPlayer()
+        }
+    }
+
+    private fun registerNewAudio() {
+        val filter = IntentFilter(NEW_AUDIO)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(newAudio, filter)
+    }
+
+    private val loadingComplete = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            loadingBuffering.visibility = View.GONE
+            playPause.visibility = View.VISIBLE
+
+            loadingMini.visibility = View.GONE
+            playPauseMini.visibility = View.VISIBLE
+        }
+    }
+
+    private fun registerLoadingComplete() {
+        val filter = IntentFilter(NEW_AUDIO)
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(loadingComplete, filter)
+    }
+
+    private val bufferingStart = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            loadingBuffering.visibility = View.VISIBLE
+            playPause.visibility = View.GONE
+
+            loadingMini.visibility = View.VISIBLE
+            playPauseMini.visibility = View.GONE
+        }
+    }
+
+    private fun registerBufferingStart() {
+        val filter = IntentFilter(NEW_AUDIO)
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(bufferingStart, filter)
+    }
+
+    private val bufferingEnd = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            loadingBuffering.visibility = View.GONE
+            playPause.visibility = View.VISIBLE
+
+            loadingMini.visibility = View.GONE
+            playPauseMini.visibility = View.VISIBLE
+        }
+    }
+
+    private fun registerBufferingEnd() {
+        val filter = IntentFilter(NEW_AUDIO)
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(bufferingEnd, filter)
+    }
+
+    //Broadcast Receiver functions END
+
     //Player layout functions
     private fun toggleSheet() {
         try {
             (activity as HomeActivity).toggleBottomSheet()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
         try {
             (activity as AlbumActivity).toggleBottomSheet()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
         try {
             (activity as AlbumListActivity).toggleBottomSheet()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
         try {
             (activity as ProfileActivity).toggleBottomSheet()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
     }
 
