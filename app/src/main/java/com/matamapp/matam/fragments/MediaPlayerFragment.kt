@@ -19,6 +19,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.matamapp.matam.*
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
+import com.matamapp.matam.mediaPlayer.PlayerService
 
 class MediaPlayerFragment : Fragment() {
     //Static Variables
@@ -33,9 +38,10 @@ class MediaPlayerFragment : Fragment() {
         var PLAY = false
         var FAV = false
         var LoopStatus = 0
-        var isLoading = false
+        var isLoading = true
         var isPlaying = false
         var isShuffleEnabled = false
+        var duration = 0
     }
     //End Static Variables
 
@@ -86,6 +92,7 @@ class MediaPlayerFragment : Fragment() {
         registerLoadingComplete()
         registerBufferingStart()
         registerBufferingEnd()
+        registerSeekUpdate()
         // Inflate the layout for this fragment
         playerView = inflater.inflate(R.layout.fragment_media_player, container, false)
         miniPlayer = playerView.findViewById<CardView>(R.id.miniPlayer)
@@ -106,6 +113,7 @@ class MediaPlayerFragment : Fragment() {
         localBroadcastManager.unregisterReceiver(loadingComplete)
         localBroadcastManager.unregisterReceiver(bufferingStart)
         localBroadcastManager.unregisterReceiver(bufferingEnd)
+        localBroadcastManager.unregisterReceiver(seekUpdate)
     }
     //End create and resume MediaPlayer Fragment
 
@@ -139,6 +147,10 @@ class MediaPlayerFragment : Fragment() {
         playPauseMini = playerView.findViewById(R.id.miniPlayPause)
         loadingMini = playerView.findViewById(R.id.miniLoading)
         nextButtonMini = playerView.findViewById(R.id.miniNext)
+
+        //Add functions on click
+        playPause.setOnClickListener { playPause() }
+        playPauseMini.setOnClickListener { playPause() }
     }
     //end initialize the variables
 
@@ -174,6 +186,10 @@ class MediaPlayerFragment : Fragment() {
                     )
                 )
             }
+
+            seekBar.max = duration
+
+            Toast.makeText(context, "Duration is $duration", Toast.LENGTH_SHORT).show()
         }
         trackTitleView.isSelected = true
         setUpVolumeBar()
@@ -249,6 +265,9 @@ class MediaPlayerFragment : Fragment() {
         }
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    seekTo(progress)
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -283,7 +302,9 @@ class MediaPlayerFragment : Fragment() {
 
     //Player Handling functions
     private fun seekTo(position: Int) {
-        //TODO("Do something when user seek to a position")
+        val intent = Intent(SEEK_TO)
+        intent.putExtra("seek_position", position)
+        localBroadcastManager.sendBroadcast(intent)
     }
 
     private fun changeVolume(volumeLevel: Int) {
@@ -291,7 +312,39 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun playPause() {
-        TODO("Do something when user hit playPause button")
+        if (isPlaying) {
+            playPauseMini.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_play_arrow_24,
+                    null
+                )
+            )
+            playPause.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_play_arrow_24,
+                    null
+                )
+            )
+            localBroadcastManager.sendBroadcast(Intent(PAUSE_AUDIO))
+        } else {
+            playPause.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_pause_24,
+                    null
+                )
+            )
+            playPauseMini.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_pause_24,
+                    null
+                )
+            )
+            localBroadcastManager.sendBroadcast(Intent(PLAY_AUDIO))
+        }
     }
 
     private fun previousTrack() {
@@ -334,7 +387,7 @@ class MediaPlayerFragment : Fragment() {
 
     private fun registerNewAudio() {
         val filter = IntentFilter(NEW_AUDIO)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(newAudio, filter)
+        localBroadcastManager.registerReceiver(newAudio, filter)
     }
 
     private val loadingComplete = object : BroadcastReceiver() {
@@ -349,8 +402,7 @@ class MediaPlayerFragment : Fragment() {
 
     private fun registerLoadingComplete() {
         val filter = IntentFilter(NEW_AUDIO)
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(loadingComplete, filter)
+        localBroadcastManager.registerReceiver(loadingComplete, filter)
     }
 
     private val bufferingStart = object : BroadcastReceiver() {
@@ -365,8 +417,7 @@ class MediaPlayerFragment : Fragment() {
 
     private fun registerBufferingStart() {
         val filter = IntentFilter(NEW_AUDIO)
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(bufferingStart, filter)
+        localBroadcastManager.registerReceiver(bufferingStart, filter)
     }
 
     private val bufferingEnd = object : BroadcastReceiver() {
@@ -381,8 +432,20 @@ class MediaPlayerFragment : Fragment() {
 
     private fun registerBufferingEnd() {
         val filter = IntentFilter(NEW_AUDIO)
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(bufferingEnd, filter)
+        localBroadcastManager.registerReceiver(bufferingEnd, filter)
+    }
+
+    private val seekUpdate = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val progress = intent?.getIntExtra("current_position", 0)
+            seekBar.progress = progress!!
+            Toast.makeText(context, "Progress $progress", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun registerSeekUpdate() {
+        val filter = IntentFilter(SEEK_UPDATE)
+        localBroadcastManager.registerReceiver(seekUpdate, filter)
     }
 
     //Broadcast Receiver functions END

@@ -1,48 +1,50 @@
 package com.matamapp.matam.mediaPlayer
 
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.matamapp.matam.CommonData
 import com.matamapp.matam.fragments.MediaPlayerFragment
+import com.matamapp.matam.fragments.MediaPlayerFragment.Companion.isPlaying
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.LOADING_COMPLETE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
 import java.io.IOException
+import java.util.logging.Handler
 
-class PlayerService : Service(),
-    MediaPlayer.OnCompletionListener,
-    MediaPlayer.OnPreparedListener,
-    MediaPlayer.OnErrorListener,
-    MediaPlayer.OnSeekCompleteListener,
-    MediaPlayer.OnInfoListener,
-    MediaPlayer.OnBufferingUpdateListener,
-    AudioManager.OnAudioFocusChangeListener {
+class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
+    MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,
+    MediaPlayer.OnBufferingUpdateListener, AudioManager.OnAudioFocusChangeListener {
 
     private val broadcastManager = LocalBroadcastManager.getInstance(this)
 
     private lateinit var audioManager: AudioManager
-
-    private var mediaPlayer: MediaPlayer? = null
+    var mediaPlayer: MediaPlayer? = null
 
     private var trackURL = ""
     private var resumePosition = 0
 
-    private val mAudioAttributes = AudioAttributes.Builder()
-        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-        .setUsage(AudioAttributes.USAGE_MEDIA)
-        .build()
+    private val mAudioAttributes =
+        AudioAttributes.Builder().setLegacyStreamType(AudioManager.STREAM_MUSIC)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .setUsage(AudioAttributes.USAGE_MEDIA).build()
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -74,6 +76,11 @@ class PlayerService : Service(),
     override fun onCreate() {
         super.onCreate()
         CommonData.serviceRunning = true
+
+        //Register Listeners
+        registerPlayAudioListener()
+        registerPauseAudioListener()
+        registerSeekToListener()
     }
 
     override fun onDestroy() {
@@ -86,6 +93,12 @@ class PlayerService : Service(),
         QueueManagement.currentQueue.clear()
         QueueManagement.currentPosition = -1
         CommonData.serviceRunning = false
+
+        //Unregister Listeners
+        broadcastManager.unregisterReceiver(playAudioListener)
+        broadcastManager.unregisterReceiver(pauseAudioListener)
+        broadcastManager.unregisterReceiver(seekToListener)
+
 
         super.onDestroy()
     }
@@ -100,8 +113,7 @@ class PlayerService : Service(),
 
     override fun onPrepared(mp: MediaPlayer?) {
         playMedia()
-        MediaPlayerFragment.isLoading = false
-        broadcastManager.sendBroadcast(Intent(LOADING_COMPLETE))
+        MediaPlayerFragment.duration = mp!!.duration
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -127,12 +139,12 @@ class PlayerService : Service(),
         when (what) {
             MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
                 MediaPlayerFragment.isLoading = true
-                MediaPlayerFragment.isPlaying = false
+                isPlaying = false
                 broadcastManager.sendBroadcast(Intent(BUFFERING_START))
             }
             MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
                 MediaPlayerFragment.isLoading = false
-                MediaPlayerFragment.isPlaying = true
+                isPlaying = true
                 broadcastManager.sendBroadcast(Intent(BUFFERING_END))
             }
         }
@@ -174,14 +186,18 @@ class PlayerService : Service(),
     private fun playMedia() {
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer?.start()
-            MediaPlayerFragment.isPlaying = true
+            isPlaying = true
+            MediaPlayerFragment.isLoading = false
+            MediaPlayerFragment.duration = mediaPlayer!!.duration
+            broadcastManager.sendBroadcast(Intent(LOADING_COMPLETE))
+            sendSeekUpdate()
         }
     }
 
     private fun stopMedia() {
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer?.stop()
-            MediaPlayerFragment.isPlaying = false
+            isPlaying = false
         }
     }
 
@@ -189,14 +205,15 @@ class PlayerService : Service(),
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer?.seekTo(resumePosition)
             mediaPlayer?.start()
-            MediaPlayerFragment.isPlaying = true
+            isPlaying = true
         }
     }
 
     private fun pauseMedia() {
-        if(mediaPlayer!!.isPlaying) {
+        if (mediaPlayer!!.isPlaying) {
             mediaPlayer?.pause()
-            MediaPlayerFragment.isPlaying = false
+            resumePosition = mediaPlayer!!.currentPosition
+            isPlaying = false
         }
     }
 
@@ -240,10 +257,8 @@ class PlayerService : Service(),
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val focusRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(mAudioAttributes)
-                .setAcceptsDelayedFocusGain(true)
-                .setOnAudioFocusChangeListener(this)
-                .build()
+                .setAudioAttributes(mAudioAttributes).setAcceptsDelayedFocusGain(true)
+                .setOnAudioFocusChangeListener(this).build()
         } else {
             null
         }
@@ -252,9 +267,7 @@ class PlayerService : Service(),
             audioManager.requestAudioFocus(focusRequest!!)
         } else {
             audioManager.requestAudioFocus(
-                this,
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN
+                this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN
             )
         }
 
@@ -270,10 +283,46 @@ class PlayerService : Service(),
 
     //Audio Focus Related Functions End
 
-    //Send Broadcasts Related Functions
+    //Broadcasts Related Functions
 
+    private val playAudioListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            resumeMedia()
+            print("Intent broadcast received PLAY_AUDIO")
+        }
+    }
 
-    //Send Broadcasts Related Functions End
+    private fun registerPlayAudioListener() {
+        val filter = IntentFilter(PLAY_AUDIO)
+        broadcastManager.registerReceiver(playAudioListener, filter)
+    }
+
+    private val pauseAudioListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            pauseMedia()
+            print("Intent broadcast received PAUSE_AUDIO")
+            stopMedia()
+        }
+    }
+
+    private fun registerPauseAudioListener() {
+        val filter = IntentFilter(PAUSE_AUDIO)
+        broadcastManager.registerReceiver(pauseAudioListener, filter)
+    }
+
+    private val seekToListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val seekPosition = intent?.getIntExtra("seek_position", 0)
+            mediaPlayer?.seekTo(seekPosition!!)
+        }
+    }
+
+    private fun registerSeekToListener() {
+        val filter = IntentFilter(SEEK_TO)
+        broadcastManager.registerReceiver(seekToListener, filter)
+    }
+
+    //Broadcasts Related Functions End
 
 
     //Set Player UI Variables Function
@@ -291,10 +340,22 @@ class PlayerService : Service(),
             QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name
         MediaPlayerFragment.isLoading = true
 
-       broadcastManager.sendBroadcast(Intent(NEW_AUDIO))
+        broadcastManager.sendBroadcast(Intent(NEW_AUDIO))
     }
 
     //Set Player UI Variables Function END
+
+    //Seek Update
+    private fun sendSeekUpdate() {
+        android.os.Handler(Looper.getMainLooper()).postDelayed({
+            if (isPlaying) {
+                val intent = Intent(SEEK_UPDATE)
+                intent.putExtra("current_position", mediaPlayer?.currentPosition)
+                broadcastManager.sendBroadcast(intent)
+            }
+        }, 1000)
+    }
+    //Seek Update END
 
     private fun formatURL(rawURL: String): String {
         val formattedURL = rawURL.replace(" ", "%20")

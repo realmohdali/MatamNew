@@ -87,6 +87,8 @@ class QueueActivity : AppCompatActivity() {
                         }
                         QueueManagement.currentQueue.removeAt(viewHolder.absoluteAdapterPosition)
                         queueAdapter.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
+                    } else {
+                        queueAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
                     }
                 }
             })
