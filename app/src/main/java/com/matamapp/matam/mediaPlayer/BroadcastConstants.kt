@@ -3,12 +3,16 @@ package com.matamapp.matam.mediaPlayer
 class BroadcastConstants {
     companion object{
         const val NEW_AUDIO = "com.matamapp.matam.mediaPlayer.NEW_AUDIO"
-        const val LOADING_COMPLETE = "com.matamapp.matam.mediaPlayer.LOADING_COMPLETE"
+        const val PLAYER_PREPARED = "com.matamapp.matam.mediaPlayer.LOADING_COMPLETE"
         const val BUFFERING_START = "com.matamapp.matam.mediaPlayer.BUFFERING_START"
         const val BUFFERING_END = "com.matamapp.matam.mediaPlayer.BUFFERING_END"
+        const val BUFFERING_UPDATE = "com.matamapp.matam.mediaPlayer.BUFFERING_UPDATE"
         const val PLAY_AUDIO = "com.matamapp.matam.mediaPlayer.PLAY_AUDIO"
         const val PAUSE_AUDIO = "com.matamapp.matam.mediaPlayer.PAUSE_AUDIO"
         const val SEEK_UPDATE = "com.matamapp.matam.mediaPlayer.SEEK_UPDATE"
         const val SEEK_TO = "com.matamapp.matam.mediaPlayer.SEEK_TO"
+        const val NEXT_TRACK = "com.matamapp.matam.mediaPlayer.NEXT_TRACK"
+        const val PREVIOUS_TRACK = "com.matamapp.matam.mediaPlayer.PREVIOUS_TRACK"
+        const val RESET_PLAYER = "com.matamapp.matam.mediaPlayer.RESET_PLAYER"
     }
 }

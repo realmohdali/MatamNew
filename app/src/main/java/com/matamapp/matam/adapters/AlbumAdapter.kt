@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.matamapp.matam.CommonData
 import com.matamapp.matam.R
 import com.matamapp.matam.data.TrackData
+import com.matamapp.matam.mediaPlayer.MediaPlayerService
 import com.matamapp.matam.mediaPlayer.PlayerService
 import com.matamapp.matam.mediaPlayer.QueueManagement
 
@@ -44,7 +45,7 @@ class AlbumAdapter(val context: Context, private val trackList: MutableList<Trac
             if (!CommonData.serviceRunning) {
                 QueueManagement.currentQueue = trackList
                 QueueManagement.currentPosition = position
-                context.startService(Intent(context, PlayerService::class.java))
+                context.startService(Intent(context, MediaPlayerService::class.java))
             } else if (!QueueManagement.existsInQueue(trackList[position])) {
                 QueueManagement.currentQueue = trackList
                 QueueManagement.currentPosition = position

@@ -20,14 +20,13 @@ import com.matamapp.matam.fragments.MediaPlayerFragment
 import com.matamapp.matam.fragments.MediaPlayerFragment.Companion.isPlaying
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
-import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.LOADING_COMPLETE
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAYER_PREPARED
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
 import java.io.IOException
-import java.util.logging.Handler
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,
@@ -189,7 +188,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             isPlaying = true
             MediaPlayerFragment.isLoading = false
             MediaPlayerFragment.duration = mediaPlayer!!.duration
-            broadcastManager.sendBroadcast(Intent(LOADING_COMPLETE))
+            broadcastManager.sendBroadcast(Intent(PLAYER_PREPARED))
             sendSeekUpdate()
         }
     }

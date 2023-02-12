@@ -12,32 +12,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.matamapp.matam.*
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEXT_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAYER_PREPARED
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PREVIOUS_TRACK
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
-import com.matamapp.matam.mediaPlayer.PlayerService
+import kotlin.math.min
 
 class MediaPlayerFragment : Fragment() {
     //Static Variables
     companion object {
         var imageURL = ""
         var progress = 0
-        var currentTime = ""
-        var remainingTime = ""
-        var trackTitle = ""
-        var trackArtist = ""
-        var volume = 0
-        var PLAY = false
+        var currentTimeString = "00:00"
+        var remainingTimeString = "-00:00"
+        var trackTitle = "Track Title"
+        var trackArtist = "Nauha Khuwan"
         var FAV = false
-        var LoopStatus = 0
+        var loopStatus = 0
         var isLoading = true
         var isPlaying = false
         var isShuffleEnabled = false
@@ -84,15 +88,17 @@ class MediaPlayerFragment : Fragment() {
 
     //Create and resume MediaPlayer Fragment
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         localBroadcastManager = LocalBroadcastManager.getInstance(requireContext())
-        registerNewAudio()
-        registerLoadingComplete()
-        registerBufferingStart()
-        registerBufferingEnd()
-        registerSeekUpdate()
+        registerNewAudioListener()
+        registerLoadingCompleteListener()
+        registerBufferingStartListener()
+        registerBufferingEndListener()
+        registerSeekUpdateListener()
+        registerBufferingUpdateListener()
+        registerPlayerResetListener()
+
         // Inflate the layout for this fragment
         playerView = inflater.inflate(R.layout.fragment_media_player, container, false)
         miniPlayer = playerView.findViewById<CardView>(R.id.miniPlayer)
@@ -109,11 +115,13 @@ class MediaPlayerFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        localBroadcastManager.unregisterReceiver(newAudio)
-        localBroadcastManager.unregisterReceiver(loadingComplete)
-        localBroadcastManager.unregisterReceiver(bufferingStart)
-        localBroadcastManager.unregisterReceiver(bufferingEnd)
-        localBroadcastManager.unregisterReceiver(seekUpdate)
+        localBroadcastManager.unregisterReceiver(newAudioListener)
+        localBroadcastManager.unregisterReceiver(playerPreparedListener)
+        localBroadcastManager.unregisterReceiver(bufferingStartListener)
+        localBroadcastManager.unregisterReceiver(bufferingEndListener)
+        localBroadcastManager.unregisterReceiver(seekUpdateListener)
+        localBroadcastManager.unregisterReceiver(bufferingUpdateListener)
+        localBroadcastManager.unregisterReceiver(playerResetListener)
     }
     //End create and resume MediaPlayer Fragment
 
@@ -149,91 +157,204 @@ class MediaPlayerFragment : Fragment() {
         nextButtonMini = playerView.findViewById(R.id.miniNext)
 
         //Add functions on click
-        playPause.setOnClickListener { playPause() }
-        playPauseMini.setOnClickListener { playPause() }
+        playPause.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                playPause()
+            }
+        }
+        playPauseMini.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                playPause()
+            }
+        }
+
+        prevButton.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                previousTrack()
+            }
+        }
+        prevButtonMini.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                previousTrack()
+            }
+        }
+
+        nextButton.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                nextTrack()
+            }
+        }
+        nextButtonMini.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                nextTrack()
+            }
+        }
+
+        loopButton.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                setLoopStatus()
+            }
+        }
     }
     //end initialize the variables
 
     //setup main player
     private fun setUpPlayer() {
-        if (CommonData.serviceRunning) {
+        if (imageURL == "") {
+            trackImageView.setImageResource(R.drawable.splash_image)
+        } else {
             Glide.with(requireContext()).load(imageURL).into(trackImageView)
-            trackTitleView.text = trackTitle
-            artistNameView.text = trackArtist
-
-            if (isLoading) {
-                playPause.visibility = View.GONE
-                loadingBuffering.visibility = View.VISIBLE
-            } else {
-                playPause.visibility = View.VISIBLE
-                loadingBuffering.visibility = View.GONE
-            }
-
-            if (isPlaying) {
-                playPause.setImageDrawable(
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_baseline_pause_24,
-                        null
-                    )
-                )
-            } else if (!isLoading) {
-                playPause.setImageDrawable(
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_baseline_play_arrow_24,
-                        null
-                    )
-                )
-            }
-
-            seekBar.max = duration
-
-            Toast.makeText(context, "Duration is $duration", Toast.LENGTH_SHORT).show()
         }
+        trackTitleView.text = trackTitle
+        artistNameView.text = trackArtist
+
+        if (isLoading) {
+            playPause.visibility = View.GONE
+            loadingBuffering.visibility = View.VISIBLE
+        } else {
+            playPause.visibility = View.VISIBLE
+            loadingBuffering.visibility = View.GONE
+        }
+
+        if (isPlaying) {
+            playPause.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_baseline_pause_24, null
+                )
+            )
+        } else if (!isLoading) {
+            playPause.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_baseline_play_arrow_24, null
+                )
+            )
+        }
+
+        if (!CommonData.serviceRunning) {
+            playPause.visibility = View.VISIBLE
+            loadingBuffering.visibility = View.GONE
+            playPause.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_baseline_play_arrow_24, null
+                )
+            )
+        }
+
+        when (loopStatus) {
+            0 -> {
+                loopButton.setImageResource(R.drawable.ic_baseline_repeat_24)
+            }
+            1 -> {
+                loopButton.setImageResource(R.drawable.ic_baseline_repeat_24_green)
+            }
+            2 -> {
+                loopButton.setImageResource(R.drawable.ic_baseline_repeat_one_24_green)
+            }
+        }
+
+        seekBar.max = duration
+        seekBar.progress = progress
+
+        currentTime.text = currentTimeString
+        remainingTime.text = remainingTimeString
+
         trackTitleView.isSelected = true
         setUpVolumeBar()
+
     }
     //end setup main player
 
     //setup mini player
     private fun setMiniPlayer() {
-        if (CommonData.serviceRunning) {
+        if (imageURL == "") {
+            trackImageViewMini.setImageResource(R.drawable.splash_image)
+        } else {
             Glide.with(requireContext()).load(imageURL).into(trackImageViewMini)
-            trackTitleMini.text = trackTitle
-            artistNameMini.text = trackArtist
-
-            if (isLoading) {
-                playPauseMini.visibility = View.GONE
-                loadingMini.visibility = View.VISIBLE
-            } else {
-                playPauseMini.visibility = View.VISIBLE
-                loadingMini.visibility = View.GONE
-            }
-
-            if (isPlaying) {
-                playPauseMini.setImageDrawable(
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_baseline_pause_24,
-                        null
-                    )
-                )
-            } else if (!isLoading) {
-                playPauseMini.setImageDrawable(
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_baseline_play_arrow_24,
-                        null
-                    )
-                )
-            }
         }
+        trackTitleMini.text = trackTitle
+        artistNameMini.text = trackArtist
+
+        if (isLoading) {
+            playPauseMini.visibility = View.GONE
+            loadingMini.visibility = View.VISIBLE
+        } else {
+            playPauseMini.visibility = View.VISIBLE
+            loadingMini.visibility = View.GONE
+        }
+
+        if (isPlaying) {
+            playPauseMini.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_baseline_pause_24, null
+                )
+            )
+        } else if (!isLoading) {
+            playPauseMini.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_baseline_play_arrow_24, null
+                )
+            )
+        }
+
+        if (!CommonData.serviceRunning) {
+            playPauseMini.visibility = View.VISIBLE
+            loadingMini.visibility = View.GONE
+            playPauseMini.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_baseline_play_arrow_24, null
+                )
+            )
+        }
+        progressBarMini.max = duration
+        progressBarMini.progress = progress
+
         trackTitleMini.isSelected = true
+
     }
     //end setup mini player
 
     //Setup functions
+
+    private fun setUpCurrentTimeString(currentPosition: Int) {
+        currentTimeString = ""
+        remainingTimeString = ""
+        var seconds = (currentPosition / 1000) % 60
+        var minutes = (currentPosition / 1000 - seconds) / 60
+
+        if (minutes < 10) {
+            currentTimeString += "0"
+        }
+
+        currentTimeString += "$minutes:"
+
+        if (seconds < 10) {
+            currentTimeString += "0"
+        }
+
+        currentTimeString += seconds
+
+        currentTime.text = currentTimeString
+
+        remainingTimeString = "-"
+        val timeRemaining = duration - currentPosition
+
+        seconds = (timeRemaining / 1000) % 60
+        minutes = (timeRemaining / 1000 - seconds) / 60
+
+        if (minutes < 10) {
+            remainingTimeString += "0"
+        }
+
+        remainingTimeString += "$minutes:"
+
+        if (seconds < 10) {
+            remainingTimeString += "0"
+        }
+
+        remainingTimeString += seconds
+        remainingTime.text = remainingTimeString
+    }
+
     private fun setUpVolumeBar() {
         audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -267,6 +388,7 @@ class MediaPlayerFragment : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     seekTo(progress)
+                    setUpCurrentTimeString(progress)
                 }
             }
 
@@ -280,9 +402,7 @@ class MediaPlayerFragment : Fragment() {
         volumeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 audioManager.setStreamVolume(
-                    AudioManager.STREAM_MUSIC,
-                    progress,
-                    0
+                    AudioManager.STREAM_MUSIC, progress, 0
                 )
             }
 
@@ -294,7 +414,9 @@ class MediaPlayerFragment : Fragment() {
         })
 
         queueButton.setOnClickListener {
-            showQueue()
+            if (CommonData.serviceRunning) {
+                showQueue()
+            }
         }
 
     }
@@ -307,40 +429,28 @@ class MediaPlayerFragment : Fragment() {
         localBroadcastManager.sendBroadcast(intent)
     }
 
-    private fun changeVolume(volumeLevel: Int) {
-        //TODO("Do something when user change volume")
-    }
-
     private fun playPause() {
         if (isPlaying) {
             playPauseMini.setImageDrawable(
                 ResourcesCompat.getDrawable(
-                    resources,
-                    R.drawable.ic_baseline_play_arrow_24,
-                    null
+                    resources, R.drawable.ic_baseline_play_arrow_24, null
                 )
             )
             playPause.setImageDrawable(
                 ResourcesCompat.getDrawable(
-                    resources,
-                    R.drawable.ic_baseline_play_arrow_24,
-                    null
+                    resources, R.drawable.ic_baseline_play_arrow_24, null
                 )
             )
             localBroadcastManager.sendBroadcast(Intent(PAUSE_AUDIO))
         } else {
             playPause.setImageDrawable(
                 ResourcesCompat.getDrawable(
-                    resources,
-                    R.drawable.ic_baseline_pause_24,
-                    null
+                    resources, R.drawable.ic_baseline_pause_24, null
                 )
             )
             playPauseMini.setImageDrawable(
                 ResourcesCompat.getDrawable(
-                    resources,
-                    R.drawable.ic_baseline_pause_24,
-                    null
+                    resources, R.drawable.ic_baseline_pause_24, null
                 )
             )
             localBroadcastManager.sendBroadcast(Intent(PLAY_AUDIO))
@@ -348,11 +458,11 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun previousTrack() {
-        TODO("Do something when user hit prevButton")
+        localBroadcastManager.sendBroadcast(Intent(PREVIOUS_TRACK))
     }
 
     private fun nextTrack() {
-        TODO("Do something when user hit nextButton")
+        localBroadcastManager.sendBroadcast(Intent(NEXT_TRACK))
     }
 
     private fun toggleShuffle() {
@@ -360,7 +470,20 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun setLoopStatus() {
-        TODO("Do something when user hit loop")
+        when (loopStatus) {
+            0 -> {
+                loopStatus = 1
+                loopButton.setImageResource(R.drawable.ic_baseline_repeat_24_green)
+            }
+            1 -> {
+                loopStatus = 2
+                loopButton.setImageResource(R.drawable.ic_baseline_repeat_one_24_green)
+            }
+            2 -> {
+                loopStatus = 0
+                loopButton.setImageResource(R.drawable.ic_baseline_repeat_24)
+            }
+        }
     }
 
     private fun toggleFav() {
@@ -378,34 +501,31 @@ class MediaPlayerFragment : Fragment() {
 
     //Broadcast Receiver functions
 
-    private val newAudio = object : BroadcastReceiver() {
+    private val newAudioListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             setUpPlayer()
             setMiniPlayer()
         }
     }
 
-    private fun registerNewAudio() {
+    private fun registerNewAudioListener() {
         val filter = IntentFilter(NEW_AUDIO)
-        localBroadcastManager.registerReceiver(newAudio, filter)
+        localBroadcastManager.registerReceiver(newAudioListener, filter)
     }
 
-    private val loadingComplete = object : BroadcastReceiver() {
+    private val playerPreparedListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            loadingBuffering.visibility = View.GONE
-            playPause.visibility = View.VISIBLE
-
-            loadingMini.visibility = View.GONE
-            playPauseMini.visibility = View.VISIBLE
+            setUpPlayer()
+            setMiniPlayer()
         }
     }
 
-    private fun registerLoadingComplete() {
-        val filter = IntentFilter(NEW_AUDIO)
-        localBroadcastManager.registerReceiver(loadingComplete, filter)
+    private fun registerLoadingCompleteListener() {
+        val filter = IntentFilter(PLAYER_PREPARED)
+        localBroadcastManager.registerReceiver(playerPreparedListener, filter)
     }
 
-    private val bufferingStart = object : BroadcastReceiver() {
+    private val bufferingStartListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             loadingBuffering.visibility = View.VISIBLE
             playPause.visibility = View.GONE
@@ -415,12 +535,12 @@ class MediaPlayerFragment : Fragment() {
         }
     }
 
-    private fun registerBufferingStart() {
-        val filter = IntentFilter(NEW_AUDIO)
-        localBroadcastManager.registerReceiver(bufferingStart, filter)
+    private fun registerBufferingStartListener() {
+        val filter = IntentFilter(BUFFERING_START)
+        localBroadcastManager.registerReceiver(bufferingStartListener, filter)
     }
 
-    private val bufferingEnd = object : BroadcastReceiver() {
+    private val bufferingEndListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             loadingBuffering.visibility = View.GONE
             playPause.visibility = View.VISIBLE
@@ -430,22 +550,50 @@ class MediaPlayerFragment : Fragment() {
         }
     }
 
-    private fun registerBufferingEnd() {
-        val filter = IntentFilter(NEW_AUDIO)
-        localBroadcastManager.registerReceiver(bufferingEnd, filter)
+    private fun registerBufferingEndListener() {
+        val filter = IntentFilter(BUFFERING_END)
+        localBroadcastManager.registerReceiver(bufferingEndListener, filter)
     }
 
-    private val seekUpdate = object : BroadcastReceiver() {
+    private val seekUpdateListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val progress = intent?.getIntExtra("current_position", 0)
-            seekBar.progress = progress!!
-            Toast.makeText(context, "Progress $progress", Toast.LENGTH_SHORT).show()
+            progress = intent?.getIntExtra("current_position", 0)!!
+            seekBar.progress = progress
+            progressBarMini.progress = progress
+            setUpCurrentTimeString(progress)
         }
     }
 
-    private fun registerSeekUpdate() {
+    private fun registerSeekUpdateListener() {
         val filter = IntentFilter(SEEK_UPDATE)
-        localBroadcastManager.registerReceiver(seekUpdate, filter)
+        localBroadcastManager.registerReceiver(seekUpdateListener, filter)
+    }
+
+    private val bufferingUpdateListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val bufferingStatus = intent?.getIntExtra("buffering_update", 0)
+            val ratio = bufferingStatus?.div(100.0)
+            val currentBufferingLevel: Int = (seekBar.max * ratio!!).toInt()
+            seekBar.secondaryProgress = currentBufferingLevel
+            println("Buffering Status in Media Player $bufferingStatus")
+        }
+    }
+
+    private fun registerBufferingUpdateListener() {
+        localBroadcastManager.registerReceiver(
+            bufferingUpdateListener, IntentFilter(BUFFERING_UPDATE)
+        )
+    }
+
+    private val playerResetListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            setUpPlayer()
+            setMiniPlayer()
+        }
+    }
+
+    private fun registerPlayerResetListener() {
+        localBroadcastManager.registerReceiver(playerResetListener, IntentFilter(RESET_PLAYER))
     }
 
     //Broadcast Receiver functions END
