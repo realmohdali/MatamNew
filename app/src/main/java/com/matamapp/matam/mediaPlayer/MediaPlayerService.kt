@@ -14,6 +14,7 @@ import com.matamapp.matam.fragments.MediaPlayerFragment
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_UPDATE
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.CHANGE_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEXT_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAYER_PREPARED
@@ -22,24 +23,27 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PREVIOUS_TRAC
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SHUFFLE_DISABLED
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 class MediaPlayerService : Service() {
     private val localBroadcastManager = LocalBroadcastManager.getInstance(this)
     private lateinit var executors: ExecutorService
 
+    private var shuffledPositions: MutableList<Int> = mutableListOf()
+    private var lastPlayed = -1
+
     private lateinit var mediaPlayer: MediaPlayer
 
     private var trackURL = ""
     private var resumePosition = 0
-    private val mAudioAttributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_MEDIA)
-        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-        .build()
+    private val mAudioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
 
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -65,6 +69,8 @@ class MediaPlayerService : Service() {
         registerSeekToListener()
         registerNextTrackListener()
         registerPreviousTrackListener()
+        registerShuffleListener()
+        registerChangeTrackListener()
     }
 
     override fun onDestroy() {
@@ -80,6 +86,8 @@ class MediaPlayerService : Service() {
         localBroadcastManager.unregisterReceiver(seekToListener)
         localBroadcastManager.unregisterReceiver(nextTrackListener)
         localBroadcastManager.unregisterReceiver(previousTrackListener)
+        localBroadcastManager.unregisterReceiver(shuffleListener)
+        localBroadcastManager.unregisterReceiver(changeTrackListener)
 
         localBroadcastManager.sendBroadcast(Intent(RESET_PLAYER))
 
@@ -101,37 +109,69 @@ class MediaPlayerService : Service() {
 
         mediaPlayer.setOnPreparedListener {
             MediaPlayerFragment.duration = mediaPlayer.duration
+            lastPlayed = QueueManagement.currentPosition
             playMedia()
             localBroadcastManager.sendBroadcast(Intent(PLAYER_PREPARED))
         }
         mediaPlayer.setOnCompletionListener {
             //Track Completed
-            if (QueueManagement.currentPosition < QueueManagement.currentQueue.size - 1) {
-                if (MediaPlayerFragment.loopStatus == 2) {
-                    mediaPlayer.seekTo(0)
-                    playMedia()
-                } else {
-                    QueueManagement.currentPosition++
-                    trackURL =
-                        formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
-                    stopMedia()
-                    initMediaPlayer()
-                }
+
+            if (MediaPlayerFragment.loopStatus == BroadcastConstants.LOOP_ONE) {
+                mediaPlayer.seekTo(0)
+                playMedia()
             } else {
-                when (MediaPlayerFragment.loopStatus) {
-                    0 -> {
-                        resetPlayer()
-                    }
-                    1 -> {
-                        QueueManagement.currentPosition = 0
+                if (MediaPlayerFragment.isShuffleEnabled) {
+                    shuffledPositions.add(QueueManagement.currentPosition)
+                    if (shuffledPositions.size == QueueManagement.currentQueue.size) {
+                        //All tracks are played
+                        if (MediaPlayerFragment.loopStatus == 1) {
+                            shuffledPositions.clear()
+                            var randomTrackPosition: Int
+                            while (true) {
+                                randomTrackPosition =
+                                    Random.nextInt(0, QueueManagement.currentQueue.size - 1)
+                                if (randomTrackPosition != lastPlayed) {
+                                    break
+                                }
+                            }
+                            QueueManagement.currentPosition = randomTrackPosition
+                            trackURL =
+                                formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
+                            stopMedia()
+                            initMediaPlayer()
+                        } else {
+                            resetPlayer()
+                        }
+                    } else {
+                        val randomTrackPosition = getRandomTrackPosition()
+                        QueueManagement.currentPosition = randomTrackPosition
                         trackURL =
                             formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
                         stopMedia()
                         initMediaPlayer()
                     }
-                    2 -> {
-                        mediaPlayer.seekTo(0)
-                        playMedia()
+                } else {
+                    if (QueueManagement.currentPosition < QueueManagement.currentQueue.size - 1) {
+
+                        QueueManagement.currentPosition++
+                        trackURL =
+                            formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
+                        stopMedia()
+                        initMediaPlayer()
+
+                    } else {
+                        when (MediaPlayerFragment.loopStatus) {
+                            BroadcastConstants.NO_LOOP -> {
+                                resetPlayer()
+                            }
+                            BroadcastConstants.LOOP_ALL -> {
+                                QueueManagement.currentPosition = 0
+                                trackURL =
+                                    formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
+                                stopMedia()
+                                initMediaPlayer()
+                            }
+                        }
                     }
                 }
             }
@@ -151,14 +191,13 @@ class MediaPlayerService : Service() {
                     localBroadcastManager.sendBroadcast(Intent(BUFFERING_END))
                 }
             }
-            false
+            true
         }
-        mediaPlayer.setOnBufferingUpdateListener { mp, percent ->
+        mediaPlayer.setOnBufferingUpdateListener { _, percent ->
             //Buffering status
             val intent = Intent(BUFFERING_UPDATE)
             intent.putExtra("buffering_update", percent)
             localBroadcastManager.sendBroadcast(intent)
-            //println("Buffering Update in Service $percent")
         }
     }
 
@@ -236,6 +275,7 @@ class MediaPlayerService : Service() {
             if (intent != null) {
                 val seekPosition = intent.getIntExtra("seek_position", 0)
                 seekTO(seekPosition)
+                resumePosition = seekPosition
             }
         }
     }
@@ -276,6 +316,31 @@ class MediaPlayerService : Service() {
         localBroadcastManager.registerReceiver(previousTrackListener, IntentFilter(PREVIOUS_TRACK))
     }
 
+    private val shuffleListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (!MediaPlayerFragment.isShuffleEnabled) {
+                shuffledPositions.clear()
+            }
+        }
+    }
+
+    private fun registerShuffleListener() {
+        localBroadcastManager.registerReceiver(shuffleListener, IntentFilter(SHUFFLE_DISABLED))
+    }
+
+    private val changeTrackListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            trackURL =
+                formatURL(QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl)
+            stopMedia()
+            initMediaPlayer()
+        }
+    }
+
+    private fun registerChangeTrackListener() {
+        localBroadcastManager.registerReceiver(changeTrackListener, IntentFilter(CHANGE_TRACK))
+    }
+
     //Broadcast Receivers END
 
     //Seek Update Function
@@ -290,10 +355,7 @@ class MediaPlayerService : Service() {
         }
         executors = Executors.newSingleThreadScheduledExecutor()
         (executors as ScheduledExecutorService?)?.scheduleAtFixedRate(
-            runnable,
-            0,
-            1,
-            TimeUnit.SECONDS
+            runnable, 0, 1, TimeUnit.SECONDS
         )
     }
 
@@ -336,6 +398,21 @@ class MediaPlayerService : Service() {
         MediaPlayerFragment.isShuffleEnabled = false
         MediaPlayerFragment.duration = 0
         onDestroy()
+    }
+
+    private fun getRandomTrackPosition(): Int {
+        while (true) {
+            val randomTrackPosition = Random.nextInt(0, QueueManagement.currentQueue.size - 1)
+            var foundInList = false
+            for (i in shuffledPositions) {
+                if (i == randomTrackPosition) {
+                    foundInList = true
+                }
+            }
+            if (!foundInList) {
+                return randomTrackPosition
+            }
+        }
     }
 
     //Other Helping Functions END

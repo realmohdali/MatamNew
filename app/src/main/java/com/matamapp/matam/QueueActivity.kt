@@ -28,7 +28,7 @@ class QueueActivity : AppCompatActivity() {
         val queueRecyclerView: RecyclerView = findViewById(R.id.queue_recyclerview)
         queueRecyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        val queueAdapter = QueueAdapter()
+        val queueAdapter = QueueAdapter(this)
         queueRecyclerView.adapter = queueAdapter
 
         val itemTouchHelper =

@@ -29,7 +29,7 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PREVIOUS_TRAC
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
-import kotlin.math.min
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SHUFFLE_DISABLED
 
 class MediaPlayerFragment : Fragment() {
     //Static Variables
@@ -195,6 +195,12 @@ class MediaPlayerFragment : Fragment() {
                 setLoopStatus()
             }
         }
+
+        shuffleButton.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                toggleShuffle()
+            }
+        }
     }
     //end initialize the variables
 
@@ -250,6 +256,12 @@ class MediaPlayerFragment : Fragment() {
             2 -> {
                 loopButton.setImageResource(R.drawable.ic_baseline_repeat_one_24_green)
             }
+        }
+
+        if (isShuffleEnabled) {
+            shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24_green)
+        } else {
+            shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24)
         }
 
         seekBar.max = duration
@@ -466,7 +478,14 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun toggleShuffle() {
-        TODO("Do something when user hit Shuffle")
+        if (isShuffleEnabled) {
+            isShuffleEnabled = false
+            shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24)
+            localBroadcastManager.sendBroadcast(Intent(SHUFFLE_DISABLED))
+        } else {
+            isShuffleEnabled = true
+            shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24_green)
+        }
     }
 
     private fun setLoopStatus() {
@@ -575,7 +594,6 @@ class MediaPlayerFragment : Fragment() {
             val ratio = bufferingStatus?.div(100.0)
             val currentBufferingLevel: Int = (seekBar.max * ratio!!).toInt()
             seekBar.secondaryProgress = currentBufferingLevel
-            println("Buffering Status in Media Player $bufferingStatus")
         }
     }
 
