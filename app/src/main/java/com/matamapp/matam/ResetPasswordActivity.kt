@@ -159,7 +159,6 @@ class ResetPasswordActivity : AppCompatActivity() {
         }) {
             override fun getParams(): MutableMap<String, String> {
                 val params = HashMap<String, String>()
-                params["platform_token"] = CommonData.PLATFORM_TOKEN
                 params["email"] = email
                 return params
             }

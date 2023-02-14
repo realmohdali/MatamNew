@@ -76,7 +76,6 @@ class RequestPasswordResetActivity : AppCompatActivity() {
                     }) {
                     override fun getParams(): MutableMap<String, String> {
                         val params = HashMap<String, String>()
-                        params["platform_token"] = CommonData.PLATFORM_TOKEN
                         params["email"] = emailIdText
                         return params
                     }

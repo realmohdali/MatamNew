@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.IBinder
+import android.provider.MediaStore.Audio.Media
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.matamapp.matam.CommonData
 import com.matamapp.matam.fragments.MediaPlayerFragment
@@ -199,6 +200,33 @@ class MediaPlayerService : Service() {
             intent.putExtra("buffering_update", percent)
             localBroadcastManager.sendBroadcast(intent)
         }
+
+        mediaPlayer.setOnErrorListener { mp, what, extra ->
+            when (what) {
+                MediaPlayer.MEDIA_ERROR_UNKNOWN -> {
+                    println("MEDIA_ERROR_UNKNOWN")
+                }
+                MediaPlayer.MEDIA_ERROR_SERVER_DIED -> {
+                    println("MEDIA_ERROR_SERVER_DIED")
+                }
+                MediaPlayer.MEDIA_ERROR_IO -> {
+                    println("MEDIA_ERROR_IO")
+                }
+                MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK -> {
+                    println("MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK")
+                }
+                MediaPlayer.MEDIA_ERROR_MALFORMED -> {
+                    println("MEDIA_ERROR_MALFORMED")
+                }
+                MediaPlayer.MEDIA_ERROR_TIMED_OUT -> {
+                    println("MEDIA_ERROR_TIMED_OUT")
+                }
+                MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> {
+                    println("MEDIA_ERROR_UNSUPPORTED")
+                }
+            }
+            false
+        }
     }
 
     //Init Player END
@@ -318,9 +346,7 @@ class MediaPlayerService : Service() {
 
     private val shuffleListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (!MediaPlayerFragment.isShuffleEnabled) {
-                shuffledPositions.clear()
-            }
+            shuffledPositions.clear()
         }
     }
 

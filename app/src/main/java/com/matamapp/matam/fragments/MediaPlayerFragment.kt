@@ -10,6 +10,9 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
 import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
@@ -17,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.matamapp.matam.*
+import com.matamapp.matam.db.FavoriteData
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_UPDATE
@@ -29,7 +33,7 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PREVIOUS_TRAC
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
-import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SHUFFLE_DISABLED
+import com.matamapp.matam.mediaPlayer.QueueManagement
 
 class MediaPlayerFragment : Fragment() {
     //Static Variables
@@ -201,6 +205,12 @@ class MediaPlayerFragment : Fragment() {
                 toggleShuffle()
             }
         }
+
+        favButton.setOnClickListener {
+            if (CommonData.serviceRunning) {
+                toggleFav()
+            }
+        }
     }
     //end initialize the variables
 
@@ -263,6 +273,21 @@ class MediaPlayerFragment : Fragment() {
         } else {
             shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24)
         }
+
+        if (CommonData.serviceRunning) {
+            FAV = if (CommonData.existsInFavorite(
+                    requireContext(),
+                    QueueManagement.currentQueue[QueueManagement.currentPosition].id
+                )
+            ) {
+                favButton.setImageResource(R.drawable.ic_baseline_favorite_24_green)
+                true
+            } else {
+                favButton.setImageResource(R.drawable.ic_baseline_favorite_24)
+                false
+            }
+        }
+
 
         seekBar.max = duration
         seekBar.progress = progress
@@ -442,6 +467,7 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun playPause() {
+
         if (isPlaying) {
             playPauseMini.setImageDrawable(
                 ResourcesCompat.getDrawable(
@@ -481,7 +507,7 @@ class MediaPlayerFragment : Fragment() {
         if (isShuffleEnabled) {
             isShuffleEnabled = false
             shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24)
-            localBroadcastManager.sendBroadcast(Intent(SHUFFLE_DISABLED))
+            //localBroadcastManager.sendBroadcast(Intent(SHUFFLE_DISABLED))
         } else {
             isShuffleEnabled = true
             shuffleButton.setImageResource(R.drawable.ic_baseline_shuffle_24_green)
@@ -506,7 +532,40 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun toggleFav() {
-        TODO("Do something when user hit favorite button")
+        if (FAV) {
+            CommonData.removeFavorite(
+                requireContext(),
+                QueueManagement.currentQueue[QueueManagement.currentPosition].id
+            )
+            FAV = false
+            favButton.setImageResource(R.drawable.ic_baseline_favorite_24)
+        } else {
+
+            val trackImage =
+                if (QueueManagement.currentQueue[QueueManagement.currentPosition].trackImage != "null") {
+                    QueueManagement.currentQueue[QueueManagement.currentPosition].trackImage
+                } else {
+                    QueueManagement.currentQueue[QueueManagement.currentPosition].artist.image
+                }
+
+            val favoriteData = FavoriteData(
+                QueueManagement.currentQueue[QueueManagement.currentPosition].id,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].title,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].trackURl,
+                trackImage,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.id,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.image,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.nationality,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].year.yearAD,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].year.yearHijri
+            )
+
+            CommonData.addFavorite(requireContext(), favoriteData)
+
+            FAV = true
+            favButton.setImageResource(R.drawable.ic_baseline_favorite_24_green)
+        }
     }
 
     private fun showLyrics() {

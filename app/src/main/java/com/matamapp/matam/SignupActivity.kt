@@ -107,7 +107,6 @@ class SignupActivity : AppCompatActivity() {
                     }) {
                     override fun getParams(): MutableMap<String, String> {
                         val params = HashMap<String, String>()
-                        params["platform_token"] = CommonData.PLATFORM_TOKEN
                         params["name"] = fullNameText
                         params["email"] = emailText
                         params["password"] = passwordText

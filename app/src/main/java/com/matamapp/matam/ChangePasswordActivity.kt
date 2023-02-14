@@ -81,7 +81,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                         val sessionToken =
                             preferences.getString(CommonData.SESSION_TOKEN, "0").toString()
                         val params = HashMap<String, String>()
-                        params["platform_token"] = CommonData.PLATFORM_TOKEN
                         params["session_token"] = sessionToken
                         params["old-password"] = oldPasswordText
                         params["new-password"] = newPasswordText
