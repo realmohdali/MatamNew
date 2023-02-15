@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
@@ -123,8 +122,8 @@ class ProfileActivity : AppCompatActivity() {
                 startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
-            R.id.playlist -> {
-                Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
+            R.id.favorite -> {
+                startActivity(Intent(this, FavoriteActivity::class.java))
                 return true
             }
             android.R.id.home -> {

@@ -20,9 +20,7 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.matamapp.matam.adapters.AlbumListAdapter
-import com.matamapp.matam.adapters.NauhaKhuwanAdapter
 import com.matamapp.matam.data.AlbumData
-import com.matamapp.matam.data.ArtistData
 import com.matamapp.matam.fragments.MediaPlayerFragment
 import org.json.JSONObject
 
@@ -52,7 +50,7 @@ class AlbumListActivity : AppCompatActivity() {
 
         getData()
 
-        recyclerView = findViewById(R.id.album_list_view)
+        recyclerView = findViewById(R.id.favorite_list_view)
         recyclerView.layoutManager = FlexboxLayoutManager(this).apply {
             justifyContent = JustifyContent.CENTER
             alignItems = AlignItems.CENTER
@@ -79,8 +77,8 @@ class AlbumListActivity : AppCompatActivity() {
                 val code = jsonResponse.getString("code")
                 if (code == "200") {
                     val albumListData = jsonResponse.optJSONArray("data")
-                    if(albumListData != null) {
-                        for(i in 0 until albumListData.length()) {
+                    if (albumListData != null) {
+                        for (i in 0 until albumListData.length()) {
                             val album = albumListData.getJSONObject(i)
                             val id = album.optString("id")
                             val name = album.optString("name")
@@ -88,7 +86,7 @@ class AlbumListActivity : AppCompatActivity() {
                             val featured = album.optString("featured")
                             val newRelease = album.optString("new_release")
 
-                            val albumData = AlbumData(id,name,cover,featured,newRelease)
+                            val albumData = AlbumData(id, name, cover, featured, newRelease)
                             albumList.add(albumData)
                         }
                         val adapter = AlbumListAdapter(this, albumList)
@@ -176,8 +174,8 @@ class AlbumListActivity : AppCompatActivity() {
                 startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
-            R.id.playlist -> {
-                Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
+            R.id.favorite -> {
+                startActivity(Intent(this, FavoriteActivity::class.java))
                 return true
             }
             else -> {

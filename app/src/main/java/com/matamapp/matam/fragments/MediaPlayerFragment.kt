@@ -693,6 +693,10 @@ class MediaPlayerFragment : Fragment() {
             (activity as ProfileActivity).toggleBottomSheet()
         } catch (_: Exception) {
         }
+        try {
+            (activity as FavoriteActivity).toggleBottomSheet()
+        } catch (_: java.lang.Exception) {
+        }
     }
 
     fun scroll(alpha: Float) {

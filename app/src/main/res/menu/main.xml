@@ -14,7 +14,8 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/playlist"
-        android:title="Playlists"
-        app:showAsAction="never" />
+        android:id="@+id/favorite"
+        android:icon="@drawable/ic_24_baseline_favorite_24"
+        android:title="Favorite"
+        app:showAsAction="ifRoom" />
 </menu>

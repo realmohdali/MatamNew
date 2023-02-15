@@ -6,7 +6,6 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -148,8 +147,8 @@ class HomeActivity : AppCompatActivity() {
                 startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
-            R.id.playlist -> {
-                Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
+            R.id.favorite -> {
+                startActivity(Intent(this, FavoriteActivity::class.java))
                 return true
             }
             else -> {

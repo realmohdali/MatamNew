@@ -85,10 +85,10 @@ class QueueAdapter(val context: Context) : RecyclerView.Adapter<QueueAdapter.Vie
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.queue_track_title)
-        val artist: TextView = itemView.findViewById(R.id.queue_track_artist)
-        val image: ImageView = itemView.findViewById(R.id.queue_track_image)
-        val cardView: CardView = itemView.findViewById(R.id.queue_item)
+        val title: TextView = itemView.findViewById(R.id.favorite_track_title)
+        val artist: TextView = itemView.findViewById(R.id.favorite_track_artist)
+        val image: ImageView = itemView.findViewById(R.id.favorite_track_image)
+        val cardView: CardView = itemView.findViewById(R.id.favorite_item)
         val progressBar: ProgressBar = itemView.findViewById(R.id.queue_progress_bar)
     }
 }

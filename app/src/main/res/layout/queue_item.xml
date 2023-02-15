@@ -1,7 +1,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/queue_item"
+    android:id="@+id/favorite_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -12,7 +12,7 @@
         android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/image_holder"
+            android:id="@+id/image_holder_favorite"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginStart="8dp"
@@ -24,7 +24,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/queue_track_image"
+                android:id="@+id/favorite_track_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/nadeem_sarwar" />
@@ -43,7 +43,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/queue_track_title"
+            android:id="@+id/favorite_track_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -53,21 +53,21 @@
             android:text="Title of the Nauha (The full title)"
             android:textColor="@color/white"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/queue_track_artist"
+            app:layout_constraintBottom_toTopOf="@+id/favorite_track_artist"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/image_holder"
+            app:layout_constraintStart_toEndOf="@+id/image_holder_favorite"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/queue_track_artist"
+            android:id="@+id/favorite_track_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Artist Name"
             android:textColor="@color/white"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/queue_track_title"
-            app:layout_constraintTop_toBottomOf="@+id/queue_track_title" />
+            app:layout_constraintStart_toStartOf="@+id/favorite_track_title"
+            app:layout_constraintTop_toBottomOf="@+id/favorite_track_title" />
 
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/materialDivider2"
@@ -75,6 +75,6 @@
             android:layout_height="1dp"
             android:layout_marginTop="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_holder" />
+            app:layout_constraintTop_toBottomOf="@+id/image_holder_favorite" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

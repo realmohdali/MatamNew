@@ -110,11 +110,11 @@ class AlbumAdapter(val context: Context, private val trackList: MutableList<Trac
     }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.queue_track_title)
+        val title: TextView = itemView.findViewById(R.id.favorite_track_title)
         val card: CardView = itemView.findViewById(R.id.album_list_item)
         val addToQueue: ImageView = itemView.findViewById(R.id.add_to_playlist)
-        val artistName: TextView = itemView.findViewById(R.id.queue_track_artist)
-        val trackArt: ImageView = itemView.findViewById(R.id.queue_track_image)
+        val artistName: TextView = itemView.findViewById(R.id.favorite_track_artist)
+        val trackArt: ImageView = itemView.findViewById(R.id.favorite_track_image)
         val addToFav: ImageButton = itemView.findViewById(R.id.add_to_fav)
     }
 }

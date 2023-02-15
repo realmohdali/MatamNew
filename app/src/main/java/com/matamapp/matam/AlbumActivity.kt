@@ -158,8 +158,8 @@ class AlbumActivity : AppCompatActivity() {
                 startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
-            R.id.playlist -> {
-                Toast.makeText(this, "Playlist", Toast.LENGTH_SHORT).show()
+            R.id.favorite -> {
+                startActivity(Intent(this, FavoriteActivity::class.java))
                 return true
             }
             android.R.id.home -> {
