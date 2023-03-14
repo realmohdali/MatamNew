@@ -29,6 +29,7 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEXT_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAYER_PREPARED
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_PAUSE_STATUS_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PREVIOUS_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
@@ -102,6 +103,7 @@ class MediaPlayerFragment : Fragment() {
         registerSeekUpdateListener()
         registerBufferingUpdateListener()
         registerPlayerResetListener()
+        registerPlayPauseStatusListener()
 
         // Inflate the layout for this fragment
         playerView = inflater.inflate(R.layout.fragment_media_player, container, false)
@@ -126,6 +128,7 @@ class MediaPlayerFragment : Fragment() {
         localBroadcastManager.unregisterReceiver(seekUpdateListener)
         localBroadcastManager.unregisterReceiver(bufferingUpdateListener)
         localBroadcastManager.unregisterReceiver(playerResetListener)
+        localBroadcastManager.unregisterReceiver(playPauseStatusListener)
     }
     //End create and resume MediaPlayer Fragment
 
@@ -671,6 +674,43 @@ class MediaPlayerFragment : Fragment() {
 
     private fun registerPlayerResetListener() {
         localBroadcastManager.registerReceiver(playerResetListener, IntentFilter(RESET_PLAYER))
+    }
+
+    private val playPauseStatusListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (isPlaying) {
+                playPauseMini.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources, R.drawable.ic_baseline_pause_24, null
+                    )
+                )
+                playPause.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources, R.drawable.ic_baseline_pause_24, null
+                    )
+                )
+            } else {
+                playPause.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources, R.drawable.ic_baseline_play_arrow_24, null
+
+                    )
+                )
+                playPauseMini.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources, R.drawable.ic_baseline_play_arrow_24, null
+                    )
+                )
+            }
+        }
+    }
+
+    private fun registerPlayPauseStatusListener() {
+        localBroadcastManager.registerReceiver(
+            playPauseStatusListener, IntentFilter(
+                PLAY_PAUSE_STATUS_UPDATE
+            )
+        )
     }
 
     //Broadcast Receiver functions END

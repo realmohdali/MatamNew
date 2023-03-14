@@ -1,16 +1,30 @@
 package com.matamapp.matam.mediaPlayer
 
-import android.app.Service
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioAttributes
+import android.media.MediaMetadata
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.IBinder
-import android.provider.MediaStore.Audio.Media
+import android.provider.Settings
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.matamapp.matam.CommonData
+import com.matamapp.matam.CommonData.Companion.NOTIFICATION_CHANNEL_ID
+import com.matamapp.matam.R
 import com.matamapp.matam.fragments.MediaPlayerFragment
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
@@ -20,12 +34,16 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEXT_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAYER_PREPARED
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_AUDIO
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAY_PAUSE_STATUS_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PREVIOUS_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SHUFFLE_DISABLED
 import java.io.IOException
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -40,7 +58,6 @@ class MediaPlayerService : Service() {
     private var lastPlayed = -1
 
     private lateinit var mediaPlayer: MediaPlayer
-
     private var trackURL = ""
     private var resumePosition = 0
     private val mAudioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
@@ -113,6 +130,7 @@ class MediaPlayerService : Service() {
             lastPlayed = QueueManagement.currentPosition
             playMedia()
             localBroadcastManager.sendBroadcast(Intent(PLAYER_PREPARED))
+            getBitmap()
         }
         mediaPlayer.setOnCompletionListener {
             //Track Completed
@@ -233,7 +251,6 @@ class MediaPlayerService : Service() {
 
     //Player Control Functions
     private fun playMedia() {
-
         mediaPlayer.start()
         MediaPlayerFragment.isLoading = false
         MediaPlayerFragment.isPlaying = true
@@ -246,6 +263,8 @@ class MediaPlayerService : Service() {
             resumePosition = mediaPlayer.currentPosition
             MediaPlayerFragment.isPlaying = false
             executors.shutdown()
+            getBitmap()
+            localBroadcastManager.sendBroadcast(Intent(PLAY_PAUSE_STATUS_UPDATE))
         }
     }
 
@@ -255,6 +274,8 @@ class MediaPlayerService : Service() {
             mediaPlayer.start()
             MediaPlayerFragment.isPlaying = true
             seekUpdate()
+            getBitmap()
+            localBroadcastManager.sendBroadcast(Intent(PLAY_PAUSE_STATUS_UPDATE))
         }
     }
 
@@ -442,5 +463,136 @@ class MediaPlayerService : Service() {
     }
 
     //Other Helping Functions END
+
+    //Media Notification
+
+    @SuppressLint("NewApi")
+    private fun setUpNotification(bitmap: Bitmap?) {
+        //Check Notification Permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Enable Notification")
+                .setMessage("Notifications are required for proper functioning of the application")
+                .setPositiveButton("Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    intent.data = Uri.parse("package:$packageName")
+                    startActivity(intent)
+                }
+            builder.show()
+        }
+
+        // Create PendingIntent for the actions
+        val pauseIntent = Intent(this, NotificationActionReceiver::class.java)
+        pauseIntent.action = PAUSE_AUDIO
+        val pausePendingIntent = PendingIntent.getBroadcast(
+            this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+        val previousIntent = Intent(this, NotificationActionReceiver::class.java)
+        previousIntent.action = PREVIOUS_TRACK
+        val previousPendingIntent = PendingIntent.getBroadcast(
+            this, 0, previousIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+        val nextIntent = Intent(this, NotificationActionReceiver::class.java)
+        nextIntent.action = NEXT_TRACK
+        val nextPendingIntent = PendingIntent.getBroadcast(
+            this, 0, nextIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+        val playIntent = Intent(this, NotificationActionReceiver::class.java)
+        playIntent.action = PLAY_AUDIO
+        val playPendingIntent = PendingIntent.getBroadcast(
+            this, 0, playIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+
+        val mediaSession = MediaSessionCompat(this, "Matam Media Session")
+        val mediaMetadata = MediaMetadataCompat.Builder()
+            .putString(
+                MediaMetadata.METADATA_KEY_TITLE,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].title
+            )
+            .putString(
+                MediaMetadata.METADATA_KEY_ARTIST,
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name
+            )
+            .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap)
+            .build()
+
+
+        mediaSession.setMetadata(mediaMetadata)
+
+        val notificationManager = NotificationManagerCompat.from(this)
+
+        // Build the notification with the pause action
+        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(QueueManagement.currentQueue[QueueManagement.currentPosition].title)
+            .setSubText(QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name)
+            .setSmallIcon(R.drawable.ic_baseline_queue_music_24)
+            .setLargeIcon(bitmap)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(true)
+            .setStyle(
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    .setMediaSession(mediaSession.sessionToken)
+            )
+            .addAction(android.R.drawable.ic_media_previous, "Previous", previousPendingIntent)
+        if (mediaPlayer.isPlaying) {
+            notification
+                .addAction(android.R.drawable.ic_media_pause, "Pause", pausePendingIntent)
+        } else {
+            notification
+                .addAction(android.R.drawable.ic_media_play, "Play", playPendingIntent)
+        }
+        notification.addAction(android.R.drawable.ic_media_next, "Next", nextPendingIntent)
+
+        notificationManager.notify(1001, notification.build())
+    }
+
+    private fun getBitmap() {
+        var bitmap: Bitmap?
+        val image =
+            if (QueueManagement.currentQueue[QueueManagement.currentPosition].trackImage != "null") {
+                QueueManagement.currentQueue[QueueManagement.currentPosition].trackImage
+            } else {
+                QueueManagement.currentQueue[QueueManagement.currentPosition].artist.image
+            }
+
+        try {
+            Thread {
+                // Do network action in this function
+                val url = URL(image)
+                val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+                val input: InputStream = connection.inputStream
+                bitmap = BitmapFactory.decodeStream(input)
+                setUpNotification(bitmap)
+            }.start()
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+    }
+    //Media Notification END
+}
+
+class NotificationActionReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        when (intent?.action) {
+            PAUSE_AUDIO -> {
+                LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(PAUSE_AUDIO))
+            }
+            NEXT_TRACK -> {
+                LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(NEXT_TRACK))
+            }
+            PREVIOUS_TRACK -> {
+                LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(PREVIOUS_TRACK))
+            }
+            PLAY_AUDIO -> {
+                LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(PLAY_AUDIO))
+            }
+        }
+    }
+
 }
 

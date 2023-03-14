@@ -16,6 +16,7 @@ class BroadcastConstants {
         const val RESET_PLAYER = "com.matamapp.matam.mediaPlayer.RESET_PLAYER"
         const val SHUFFLE_DISABLED = "com.matamapp.matam.mediaPlayer.RESET_PLAYER"
         const val CHANGE_TRACK = "com.matamapp.matam.mediaPlayer.RESET_PLAYER"
+        const val PLAY_PAUSE_STATUS_UPDATE = "com.matamapp.matam.mediaPlayer.PLAY_PAUSE_STATUS_UPDATE"
 
         const val NO_LOOP = 0
         const val LOOP_ALL = 1

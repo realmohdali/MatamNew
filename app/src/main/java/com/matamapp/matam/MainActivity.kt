@@ -1,24 +1,62 @@
 package com.matamapp.matam
 
+import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import org.json.JSONObject
+import com.matamapp.matam.CommonData.Companion.NOTIFICATION_CHANNEL_ID
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
 
-        Handler().postDelayed({
-                              goHome()
-        }, 3000)
+    override fun onResume() {
+        super.onResume()
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-//        val sharedPreferences = getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (!notificationManager.areNotificationsEnabled()) {
+                // Notification permission is not granted, request it
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val name = "Matam App Notification Channel"
+                    val description = "Notification channel to show media control notification"
+                    val importance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        NotificationManager.IMPORTANCE_HIGH
+                    } else {
+                        0
+                    }
+                    val channel =
+                        NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
+                            this.description = description
+                        }
+                    notificationManager.createNotificationChannel(channel)
+                }
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Enable Notification")
+                    .setMessage("Notifications are required for proper functioning of the application")
+                    .setPositiveButton("Settings") { _, _ ->
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        intent.data = Uri.parse("package:$packageName")
+                        startActivity(intent)
+                    }
+                builder.show()
+            } else {
+                Handler().postDelayed({
+                    goHome()
+                }, 3000)
+            }
+    }
+    //        val sharedPreferences = getSharedPreferences(CommonData.PREFERENCES, MODE_PRIVATE)
 //        val userToken = sharedPreferences.getString(CommonData.SESSION_TOKEN, "0")
 //
 //        if (userToken == "0") {
@@ -52,13 +90,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun goHome(){
+    private fun goHome() {
         startActivity(Intent(this, HomeActivity::class.java))
         finish()
     }
 
-    private fun goToLogin() {
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
-    }
+//    private fun goToLogin() {
+//        startActivity(Intent(this, LoginActivity::class.java))
+//        finish()
+//    }
 }

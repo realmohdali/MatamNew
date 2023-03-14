@@ -13,6 +13,8 @@ class CommonData {
         val DEVICE = Build.MANUFACTURER + " " + Build.MODEL
         var serviceRunning = false
         const val FAVORITE_TABLE = "favorites"
+        const val NOTIFICATION_CHANNEL_ID = "matam_app_notification_channel"
+
         fun addFavorite(context: Context, track: FavoriteData) {
             val databaseHelper = DatabaseHelper.getInstance(context)
             databaseHelper.favoriteDao().addToFavorite(track)
