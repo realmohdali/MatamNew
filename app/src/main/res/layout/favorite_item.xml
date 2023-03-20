@@ -23,10 +23,10 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/favorite_track_image"
+                android:id="@+id/album_art"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/nadeem_sarwar" />
+                app:srcCompat="@drawable/splash_image" />
 
         </androidx.cardview.widget.CardView>
 

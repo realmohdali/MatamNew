@@ -68,7 +68,7 @@ class FavoriteAdapter(val context: Context, private val favoriteList: MutableLis
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.favorite_track_title)
         val artist: TextView = itemView.findViewById(R.id.favorite_track_artist)
-        val image: ImageView = itemView.findViewById(R.id.favorite_track_image)
+        val image: ImageView = itemView.findViewById(R.id.album_art)
         val card: CardView = itemView.findViewById(R.id.favorite_item)
     }
 }

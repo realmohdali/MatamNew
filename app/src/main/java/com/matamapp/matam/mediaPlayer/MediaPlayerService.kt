@@ -470,7 +470,8 @@ class MediaPlayerService : Service() {
     private fun setUpNotification(bitmap: Bitmap?) {
         //Check Notification Permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED
+        ) {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Enable Notification")
                 .setMessage("Notifications are required for proper functioning of the application")
@@ -526,12 +527,13 @@ class MediaPlayerService : Service() {
         // Build the notification with the pause action
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(QueueManagement.currentQueue[QueueManagement.currentPosition].title)
-            .setSubText(QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name)
+            .setContentText(QueueManagement.currentQueue[QueueManagement.currentPosition].artist.name)
             .setSmallIcon(R.drawable.ic_baseline_queue_music_24)
             .setLargeIcon(bitmap)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
+            .setAutoCancel(false)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
@@ -546,7 +548,8 @@ class MediaPlayerService : Service() {
         }
         notification.addAction(android.R.drawable.ic_media_next, "Next", nextPendingIntent)
 
-        notificationManager.notify(1001, notification.build())
+        //notificationManager.notify(1001, notification.build())
+        startForeground(1001, notification.build())
     }
 
     private fun getBitmap() {

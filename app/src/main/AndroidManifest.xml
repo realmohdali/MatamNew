@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.NOTIFICATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/dark"
         tools:targetApi="31">
+        <activity
+            android:name=".PermissionActivity"
+            android:exported="false" />
         <activity
             android:name=".RequestPasswordResetActivity"
             android:exported="false" />
@@ -53,12 +56,10 @@
             android:name=".HomeActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".FavoriteActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -70,11 +71,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.matamapp.matam.mediaPlayer.PlayerService" />
-        <service android:name="com.matamapp.matam.mediaPlayer.MediaPlayerService" />
+        <service android:name=".mediaPlayer.PlayerService" />
+        <service android:name=".mediaPlayer.MediaPlayerService" />
 
-        <receiver android:name="com.matamapp.matam.mediaPlayer.NotificationActionReceiver" />
-
+        <receiver android:name=".mediaPlayer.NotificationActionReceiver" />
     </application>
 
 </manifest>
