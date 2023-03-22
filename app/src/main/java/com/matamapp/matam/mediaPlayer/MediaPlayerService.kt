@@ -52,7 +52,7 @@ import kotlin.random.Random
 
 class MediaPlayerService : Service() {
     private val localBroadcastManager = LocalBroadcastManager.getInstance(this)
-    private lateinit var executors: ExecutorService
+    private var executors: ExecutorService? = null
 
     private var shuffledPositions: MutableList<Int> = mutableListOf()
     private var lastPlayed = -1
@@ -219,7 +219,7 @@ class MediaPlayerService : Service() {
             localBroadcastManager.sendBroadcast(intent)
         }
 
-        mediaPlayer.setOnErrorListener { mp, what, extra ->
+        mediaPlayer.setOnErrorListener { _, what, _ ->
             when (what) {
                 MediaPlayer.MEDIA_ERROR_UNKNOWN -> {
                     println("MEDIA_ERROR_UNKNOWN")
@@ -262,7 +262,7 @@ class MediaPlayerService : Service() {
             mediaPlayer.pause()
             resumePosition = mediaPlayer.currentPosition
             MediaPlayerFragment.isPlaying = false
-            executors.shutdown()
+            executors?.shutdown()
             getBitmap()
             localBroadcastManager.sendBroadcast(Intent(PLAY_PAUSE_STATUS_UPDATE))
         }
@@ -288,7 +288,9 @@ class MediaPlayerService : Service() {
     private fun stopMedia() {
         mediaPlayer.stop()
         mediaPlayer.release()
-        executors.shutdown()
+        if(executors != null) {
+            executors?.shutdown()
+        }
     }
 
     //Player Control Functions END
@@ -401,7 +403,7 @@ class MediaPlayerService : Service() {
             }
         }
         executors = Executors.newSingleThreadScheduledExecutor()
-        (executors as ScheduledExecutorService?)?.scheduleAtFixedRate(
+        (executors!! as ScheduledExecutorService?)?.scheduleAtFixedRate(
             runnable, 0, 1, TimeUnit.SECONDS
         )
     }
@@ -522,7 +524,7 @@ class MediaPlayerService : Service() {
 
         mediaSession.setMetadata(mediaMetadata)
 
-        val notificationManager = NotificationManagerCompat.from(this)
+        //val notificationManager = NotificationManagerCompat.from(this)
 
         // Build the notification with the pause action
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)

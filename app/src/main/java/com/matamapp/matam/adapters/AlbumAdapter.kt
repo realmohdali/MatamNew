@@ -99,6 +99,7 @@ class AlbumAdapter(val context: Context, private val trackList: MutableList<Trac
         holder.addToQueue.setOnClickListener {
             if (CommonData.serviceRunning) {
                 QueueManagement.addToQueue(trackList[position])
+                Toast.makeText(context, "Added to Queue", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Player is not running", Toast.LENGTH_SHORT).show()
             }

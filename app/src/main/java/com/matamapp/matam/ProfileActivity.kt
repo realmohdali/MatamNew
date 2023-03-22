@@ -118,10 +118,6 @@ class ProfileActivity : AppCompatActivity() {
             R.id.profile -> {
                 return true
             }
-            R.id.search -> {
-                startActivity(Intent(this, SearchActivity::class.java))
-                return true
-            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 return true

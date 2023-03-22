@@ -8,12 +8,6 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/search"
-        android:icon="@drawable/ic_baseline_search_24"
-        android:title="Search"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/favorite"
         android:icon="@drawable/ic_24_baseline_favorite_24"
         android:title="Favorite"

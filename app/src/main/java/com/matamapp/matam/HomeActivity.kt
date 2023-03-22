@@ -12,10 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.matamapp.matam.fragments.HomeFragment
-import com.matamapp.matam.fragments.MediaPlayerFragment
-import com.matamapp.matam.fragments.NauhaKhuwanFragment
-import com.matamapp.matam.fragments.YearsFragment
+import com.matamapp.matam.fragments.*
 
 class HomeActivity : AppCompatActivity() {
 
@@ -44,10 +41,12 @@ class HomeActivity : AppCompatActivity() {
     private fun setActivity() {
 
         val navigationHome = R.id.navigation_home
+        val navigationSearch = R.id.navigation_search
         val navigationNauhaKhuwan = R.id.navigation_Nauha_Khuwan
         val navigationYears = R.id.navigation_year
 
         val homeFragment = HomeFragment()
+        val searchFragment = SearchFragment(this)
         val nauhaKhuwanFragment = NauhaKhuwanFragment(this)
         val yearsFragment = YearsFragment()
 
@@ -59,6 +58,11 @@ class HomeActivity : AppCompatActivity() {
             when (item.itemId) {
                 navigationHome -> {
                     supportFragmentManager.beginTransaction().replace(R.id.frame, homeFragment)
+                        .commit()
+                    true
+                }
+                navigationSearch -> {
+                    supportFragmentManager.beginTransaction().replace(R.id.frame, searchFragment)
                         .commit()
                     true
                 }
@@ -141,10 +145,6 @@ class HomeActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.profile -> {
                 startActivity(Intent(this, ProfileActivity::class.java))
-                return true
-            }
-            R.id.search -> {
-                startActivity(Intent(this, SearchActivity::class.java))
                 return true
             }
             R.id.favorite -> {
