@@ -48,7 +48,7 @@ class HomeActivity : AppCompatActivity() {
         val homeFragment = HomeFragment()
         val searchFragment = SearchFragment(this)
         val nauhaKhuwanFragment = NauhaKhuwanFragment(this)
-        val yearsFragment = YearsFragment()
+        val yearsFragment = YearsFragment(this)
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.navigation_home
@@ -143,10 +143,10 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.profile -> {
-                startActivity(Intent(this, ProfileActivity::class.java))
-                return true
-            }
+//            R.id.profile -> {
+//                startActivity(Intent(this, ProfileActivity::class.java))
+//                return true
+//            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 return true

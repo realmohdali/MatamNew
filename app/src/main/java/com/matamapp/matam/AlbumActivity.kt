@@ -120,7 +120,7 @@ class AlbumActivity : AppCompatActivity() {
                             val yearHijri = year?.optString("year_hijri").toString()
 
                             val artistData = ArtistData("", name, image, "")
-                            val yearData = YearData(yearAD, yearHijri)
+                            val yearData = YearData("0", yearAD, yearHijri)
 
                             val trackData =
                                 TrackData(id, title, trackURL, trackImage, artistData, yearData)
@@ -150,10 +150,10 @@ class AlbumActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.profile -> {
-                startActivity(Intent(this, ProfileActivity::class.java))
-                return true
-            }
+//            R.id.profile -> {
+//                startActivity(Intent(this, ProfileActivity::class.java))
+//                return true
+//            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 return true

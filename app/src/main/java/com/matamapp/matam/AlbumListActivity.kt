@@ -166,10 +166,10 @@ class AlbumListActivity : AppCompatActivity() {
                 finish()
                 return true
             }
-            R.id.profile -> {
-                startActivity(Intent(this, ProfileActivity::class.java))
-                return true
-            }
+//            R.id.profile -> {
+//                startActivity(Intent(this, ProfileActivity::class.java))
+//                return true
+//            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 return true

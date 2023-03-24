@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/profile"
-        android:icon="@drawable/ic_baseline_person_24"
-        android:title="Profile"
-        app:showAsAction="always" />
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<!--    <item-->
+<!--        android:id="@+id/profile"-->
+<!--        android:icon="@drawable/ic_baseline_person_24"-->
+<!--        android:title="Profile"-->
+<!--        android:showAsAction="always" />-->
 
     <item
         android:id="@+id/favorite"
         android:icon="@drawable/ic_24_baseline_favorite_24"
         android:title="Favorite"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

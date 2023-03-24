@@ -179,10 +179,11 @@ class FavoriteActivity : AppCompatActivity() {
             val artistName = track.artistName
             val artistImage = track.artistImage
             val artistNationality = track.artistNationality
+
             val yearAD = track.yearAD
             val yearHijri = track.yearHijri
 
-            val year = YearData(yearAD, yearHijri)
+            val year = YearData("0", yearAD, yearHijri)
             val artist = ArtistData(artistId, artistName, artistImage, artistNationality)
             val trackData = TrackData(trackId, trackTitle, trackURL, trackImage, artist, year)
             favoriteList.add(trackData)

@@ -181,7 +181,7 @@ class SearchFragment(private val context: Context) : Fragment() {
                         val yearHijri = year?.optString("year_hijri")
 
                         val artistData = ArtistData("", name!!, image!!, "")
-                        val yearData = YearData(yearAD!!, yearHijri!!)
+                        val yearData = YearData("0", yearAD!!, yearHijri!!)
 
                         val trackData =
                             TrackData(id, title, trackURL, trackImage, artistData, yearData)

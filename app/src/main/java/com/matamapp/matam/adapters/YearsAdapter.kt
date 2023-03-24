@@ -10,34 +10,11 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.matamapp.matam.AlbumListActivity
 import com.matamapp.matam.R
+import com.matamapp.matam.data.YearData
 
-class YearsAdapter : RecyclerView.Adapter<YearsAdapter.ViewHolder>() {
+class YearsAdapter(private val context: Context, private val years: MutableList<YearData>) :
+    RecyclerView.Adapter<YearsAdapter.ViewHolder>() {
     private lateinit var activityContext: Context
-    var array = arrayOf(
-        "2022",
-        "2021",
-        "2020",
-        "2019",
-        "2018",
-        "2017",
-        "2016",
-        "2015",
-        "2014",
-        "2013",
-        "2012",
-        "2011",
-        "2010",
-        "2009",
-        "2008",
-        "2007",
-        "2006",
-        "2005",
-        "2004",
-        "2003",
-        "2002",
-        "2001",
-        "2000", "1999", "1998", "1997", "1996", "1995", "1994", "1993", "1992", "1991", "1990"
-    )
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -47,14 +24,17 @@ class YearsAdapter : RecyclerView.Adapter<YearsAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.yearName.text = array[position]
+        holder.yearName.text = years[position].yearHijri
         holder.yearCardView.setOnClickListener {
-            activityContext.startActivity(Intent(activityContext, AlbumListActivity::class.java))
+            val intent = Intent(context, AlbumListActivity::class.java)
+            intent.putExtra("caller", "year")
+            intent.putExtra("id", years[position].id)
+            context.startActivity(intent)
         }
     }
 
     override fun getItemCount(): Int {
-        return array.size
+        return years.size
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -115,9 +115,9 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.profile -> {
-                return true
-            }
+//            R.id.profile -> {
+//                return true
+//            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 return true
