@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/baseline_notifications_active_24" />
+        app:srcCompat="@drawable/baseline_cloud_off_24" />
 
     <TextView
         android:id="@+id/title"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:text="Allow Notifications"
+        android:text="Device is offline"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/message"
@@ -39,7 +39,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="32dp"
         android:gravity="center"
-        android:text="Matam app requires notification access to show the notification media player."
+        android:text="Please connect to the internet"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/connectionCheckButton"
@@ -53,7 +53,7 @@
         android:layout_marginBottom="32dp"
         android:backgroundTint="@color/secondary"
         android:padding="16dp"
-        android:text="ALLOW"
+        android:text="CHECK CONNECTION"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"

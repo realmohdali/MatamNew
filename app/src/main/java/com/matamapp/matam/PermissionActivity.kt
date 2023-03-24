@@ -30,7 +30,7 @@ class PermissionActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.allow_button).setOnClickListener {
+        findViewById<Button>(R.id.connectionCheckButton).setOnClickListener {
             askForNotificationPermission()
         }
     }

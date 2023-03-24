@@ -6,9 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.matamapp.matam.CommonData.Companion.NOTIFICATION_CHANNEL_ID
+import com.matamapp.matam.CommonData.Companion.isConnectToInternet
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,10 +33,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 0
             }
-            val channel =
-                NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
-                    this.description = description
-                }
+            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
+                this.description = description
+            }
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -44,15 +43,13 @@ class MainActivity : AppCompatActivity() {
             if (!notificationManager.areNotificationsEnabled()) {
                 startActivity(Intent(this, PermissionActivity::class.java))
             } else {
-                Handler().postDelayed({
-                    goHome()
-                }, 3000)
+                if (isConnectToInternet(this)) {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                } else {
+                    startActivity(Intent(this, OfflineActivity::class.java))
+                }
             }
         }
-    }
-
-    private fun goHome() {
-        startActivity(Intent(this, HomeActivity::class.java))
-        finish()
     }
 }
