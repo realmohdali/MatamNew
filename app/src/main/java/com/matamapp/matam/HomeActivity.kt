@@ -45,7 +45,7 @@ class HomeActivity : AppCompatActivity() {
         val navigationNauhaKhuwan = R.id.navigation_Nauha_Khuwan
         val navigationYears = R.id.navigation_year
 
-        val homeFragment = HomeFragment()
+        val homeFragment = HomeFragment(this)
         val searchFragment = SearchFragment(this)
         val nauhaKhuwanFragment = NauhaKhuwanFragment(this)
         val yearsFragment = YearsFragment(this)
@@ -142,17 +142,17 @@ class HomeActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-//            R.id.profile -> {
-//                startActivity(Intent(this, ProfileActivity::class.java))
-//                return true
-//            }
+        return when (item.itemId) {
+    //            R.id.profile -> {
+    //                startActivity(Intent(this, ProfileActivity::class.java))
+    //                return true
+    //            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
-                return true
+                true
             }
             else -> {
-                return super.onOptionsItemSelected(item)
+                super.onOptionsItemSelected(item)
             }
         }
     }

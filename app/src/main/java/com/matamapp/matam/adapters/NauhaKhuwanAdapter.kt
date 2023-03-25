@@ -25,7 +25,7 @@ class NauhaKhuwanAdapter(private var context: Context, private var artists: Muta
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.cardView.setOnClickListener {
-            val intent: Intent = Intent(context, AlbumListActivity::class.java)
+            val intent = Intent(context, AlbumListActivity::class.java)
             intent.putExtra("caller", "artist")
             intent.putExtra("id", artists[position].id)
             context.startActivity(intent)

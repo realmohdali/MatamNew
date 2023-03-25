@@ -11,16 +11,19 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.media.AudioManager.*
 import android.media.MediaMetadata
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.matamapp.matam.CommonData
 import com.matamapp.matam.CommonData.Companion.NOTIFICATION_CHANNEL_ID
@@ -62,6 +65,9 @@ class MediaPlayerService : Service() {
     private var resumePosition = 0
     private val mAudioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
+
+    private var hasAudioFocus = false
+    private var wasPlaying = false
 
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -116,6 +122,9 @@ class MediaPlayerService : Service() {
 
     private fun initMediaPlayer() {
         setUpUI()
+        if (!hasAudioFocus) {
+            requestAudioFocus()
+        }
         mediaPlayer = MediaPlayer()
         mediaPlayer.setAudioAttributes(mAudioAttributes)
         try {
@@ -270,6 +279,9 @@ class MediaPlayerService : Service() {
 
     private fun resumeMedia() {
         if (!mediaPlayer.isPlaying) {
+            if (!hasAudioFocus) {
+                requestAudioFocus()
+            }
             mediaPlayer.seekTo(resumePosition)
             mediaPlayer.start()
             MediaPlayerFragment.isPlaying = true
@@ -288,7 +300,7 @@ class MediaPlayerService : Service() {
     private fun stopMedia() {
         mediaPlayer.stop()
         mediaPlayer.release()
-        if(executors != null) {
+        if (executors != null) {
             executors?.shutdown()
         }
     }
@@ -464,6 +476,72 @@ class MediaPlayerService : Service() {
         }
     }
 
+    private fun requestAudioFocus() {
+        val audioFocusChangeListener = OnAudioFocusChangeListener { focusChange ->
+            when (focusChange) {
+                AUDIOFOCUS_GAIN -> {
+                    hasAudioFocus = true
+                    mediaPlayer.setVolume(1f, 1f)
+                    if (wasPlaying) {
+                        resumeMedia()
+                    }
+                }
+                AUDIOFOCUS_LOSS -> {
+                    hasAudioFocus = false
+                    wasPlaying = if (mediaPlayer.isPlaying) {
+                        pauseMedia()
+                        true
+                    } else {
+                        false
+                    }
+                }
+                AUDIOFOCUS_LOSS_TRANSIENT -> {
+                    hasAudioFocus = false
+                    wasPlaying = if (mediaPlayer.isPlaying) {
+                        pauseMedia()
+                        true
+                    } else {
+                        false
+                    }
+                }
+                AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.setVolume(0.3f, 0.3f)
+                    }
+                }
+            }
+        }
+
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val focusRequest = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN).run {
+                setAudioAttributes(AudioAttributes.Builder().run {
+                    setUsage(AudioAttributes.USAGE_MEDIA)
+                    setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    build()
+                })
+                setOnAudioFocusChangeListener(audioFocusChangeListener)
+                build()
+            }
+            val res = audioManager.requestAudioFocus(focusRequest)
+            synchronized(Any()) {
+                hasAudioFocus = when (res) {
+                    AUDIOFOCUS_REQUEST_FAILED -> false
+                    AUDIOFOCUS_REQUEST_GRANTED -> true
+                    else -> false
+                }
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            val result = audioManager.requestAudioFocus(
+                audioFocusChangeListener,
+                STREAM_MUSIC,
+                AUDIOFOCUS_GAIN
+            )
+            hasAudioFocus = result == AUDIOFOCUS_REQUEST_GRANTED
+        }
+    }
+
     //Other Helping Functions END
 
     //Media Notification
@@ -523,8 +601,6 @@ class MediaPlayerService : Service() {
 
 
         mediaSession.setMetadata(mediaMetadata)
-
-        //val notificationManager = NotificationManagerCompat.from(this)
 
         // Build the notification with the pause action
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
@@ -598,6 +674,5 @@ class NotificationActionReceiver : BroadcastReceiver() {
             }
         }
     }
-
 }
 

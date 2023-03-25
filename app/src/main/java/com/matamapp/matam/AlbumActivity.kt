@@ -53,15 +53,15 @@ class AlbumActivity : AppCompatActivity() {
 
         sheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
+                bottomSheetFlag = when (newState) {
                     BottomSheetBehavior.STATE_COLLAPSED -> {
                         playerFragment.collapsed()
-                        bottomSheetFlag = false
+                        false
                     }
 
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         playerFragment.expanded()
-                        bottomSheetFlag = true
+                        true
                     }
                     BottomSheetBehavior.STATE_DRAGGING -> return
                     BottomSheetBehavior.STATE_SETTLING -> return
@@ -89,7 +89,7 @@ class AlbumActivity : AppCompatActivity() {
     private fun setAlbum(albumId: String) {
         val albumLoader: ProgressBar = findViewById(R.id.album_loader)
         albumLoader.visibility = View.VISIBLE
-        val albumView = findViewById<RecyclerView>(R.id.new_release_recyclerview)
+        val albumView = findViewById<RecyclerView>(R.id.newReleaseRV)
         albumView.layoutManager = LinearLayoutManager(this)
 
         val albumTrackList: MutableList<TrackData> = mutableListOf()

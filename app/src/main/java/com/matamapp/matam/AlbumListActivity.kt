@@ -117,15 +117,15 @@ class AlbumListActivity : AppCompatActivity() {
 
         sheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
+                bottomSheetFlag = when (newState) {
                     BottomSheetBehavior.STATE_COLLAPSED -> {
                         playerFragment.collapsed()
-                        bottomSheetFlag = false
+                        false
                     }
 
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         playerFragment.expanded()
-                        bottomSheetFlag = true
+                        true
                     }
                     BottomSheetBehavior.STATE_DRAGGING -> return
                     BottomSheetBehavior.STATE_SETTLING -> return
