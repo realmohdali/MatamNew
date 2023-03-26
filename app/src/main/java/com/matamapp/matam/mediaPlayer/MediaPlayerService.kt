@@ -626,7 +626,6 @@ class MediaPlayerService : Service() {
         }
         notification.addAction(android.R.drawable.ic_media_next, "Next", nextPendingIntent)
 
-        //notificationManager.notify(1001, notification.build())
         startForeground(1001, notification.build())
     }
 

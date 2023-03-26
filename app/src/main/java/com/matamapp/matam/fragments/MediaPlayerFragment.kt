@@ -5,11 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.DisplayMetrics
+import android.view.*
 import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
@@ -88,6 +87,9 @@ class MediaPlayerFragment : Fragment() {
     //Broadcast Manager variable
     private lateinit var localBroadcastManager: LocalBroadcastManager
 
+    //Album Art height
+    private var albumArtHeight = 0
+
     //Create and resume MediaPlayer Fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -105,6 +107,12 @@ class MediaPlayerFragment : Fragment() {
         // Inflate the layout for this fragment
         playerView = inflater.inflate(R.layout.fragment_media_player, container, false)
         miniPlayer = playerView.findViewById<CardView>(R.id.miniPlayer)
+
+        // Find the display height
+        val displayHeight = getDisplayHeight().toFloat()
+        val per: Float = (30.toFloat() / 100)
+        albumArtHeight = (per * displayHeight).toInt()
+
         return playerView
     }
 
@@ -149,6 +157,10 @@ class MediaPlayerFragment : Fragment() {
         favButton = playerView.findViewById(R.id.fav)
         lyricsButton = playerView.findViewById(R.id.lyrics)
         queueButton = playerView.findViewById(R.id.queue)
+
+        trackImageView.layoutParams.height = albumArtHeight
+        trackImageView.layoutParams.width = albumArtHeight
+
 
         //Mini Player item init
         progressBarMini = playerView.findViewById(R.id.progressBar)
@@ -751,4 +763,17 @@ class MediaPlayerFragment : Fragment() {
         isPlayerExpanded = true
     }
     //End Player layout functions
+
+    private fun getDisplayHeight(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val display =
+                activity?.getSystemService(WindowManager::class.java)?.currentWindowMetrics
+            display!!.bounds.height()
+        } else {
+            val displayMetrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
+            activity?.windowManager?.defaultDisplay?.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        }
+    }
 }

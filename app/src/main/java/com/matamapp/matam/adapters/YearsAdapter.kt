@@ -18,7 +18,7 @@ class YearsAdapter(private val context: Context, private val years: MutableList<
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.year_item, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.year_item, parent, false)
         activityContext = parent.context
         return ViewHolder(view)
     }

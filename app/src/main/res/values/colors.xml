@@ -12,4 +12,6 @@
     <color name="primary">#1a1f1b</color>
     <color name="primary_dark">#1a1f1b</color>
     <color name="secondary">#107805</color>
+
+    <color name="year_gray">#454749</color>
 </resources>

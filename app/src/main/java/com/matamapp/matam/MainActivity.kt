@@ -50,6 +50,13 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, OfflineActivity::class.java))
                 }
             }
+        } else {
+            if (isConnectToInternet(this)) {
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            } else {
+                startActivity(Intent(this, OfflineActivity::class.java))
+            }
         }
     }
 }
