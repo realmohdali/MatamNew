@@ -99,7 +99,7 @@ class SearchFragment(private val context: Context) : Fragment() {
         nauhaKhuwanAdapter = NauhaKhuwanAdapter(context, artists)
         nauhaKhuwanRecyclerView.adapter = nauhaKhuwanAdapter
 
-        albumAdapter = AlbumAdapter(context, tracks)
+        albumAdapter = AlbumAdapter(context, tracks, true)
         tracksRecyclerView.adapter = albumAdapter
     }
 

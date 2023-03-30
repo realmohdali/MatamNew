@@ -150,11 +150,6 @@ class AlbumListActivity : AppCompatActivity() {
         }
     }
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        playerFragment.setVolume(keyCode)
-        return super.onKeyDown(keyCode, event)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
@@ -189,6 +184,6 @@ class AlbumListActivity : AppCompatActivity() {
                 finish()
             }
         }
-        return super.onKeyDown(keyCode, event)
+        return false
     }
 }

@@ -21,7 +21,11 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.CHANGE_TRACK
 import com.matamapp.matam.mediaPlayer.MediaPlayerService
 import com.matamapp.matam.mediaPlayer.QueueManagement
 
-class AlbumAdapter(val context: Context, private val trackList: MutableList<TrackData>) :
+class AlbumAdapter(
+    val context: Context,
+    private val trackList: MutableList<TrackData>,
+    private val isSearch: Boolean
+) :
     RecyclerView.Adapter<AlbumAdapter.Holder>() {
 
     private val localBroadcastManager = LocalBroadcastManager.getInstance(context)
@@ -52,6 +56,11 @@ class AlbumAdapter(val context: Context, private val trackList: MutableList<Trac
                 QueueManagement.currentPosition = position
                 context.startService(Intent(context, MediaPlayerService::class.java))
             } else if (!QueueManagement.existsInQueue(trackList[position])) {
+                QueueManagement.currentQueue = trackList
+                QueueManagement.currentPosition = position
+                //Ask player to reset and play new queue
+                localBroadcastManager.sendBroadcast(Intent(CHANGE_TRACK))
+            } else if (isSearch) {
                 QueueManagement.currentQueue = trackList
                 QueueManagement.currentPosition = position
                 //Ask player to reset and play new queue

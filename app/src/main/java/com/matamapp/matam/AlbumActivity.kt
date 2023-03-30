@@ -28,6 +28,7 @@ class AlbumActivity : AppCompatActivity() {
 
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetFlag = false
+    private var albumArt = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +40,7 @@ class AlbumActivity : AppCompatActivity() {
         supportActionBar?.title = intent.getStringExtra("album_name").toString()
 
         val albumId = intent.getStringExtra("album_id").toString()
+        albumArt = intent.getStringExtra("album_art").toString()
 
         setPlayer()
         setAlbum(albumId)
@@ -111,7 +113,12 @@ class AlbumActivity : AppCompatActivity() {
                             val id = track?.optString("id").toString()
                             val title = track?.optString("title").toString()
                             val trackURL = track?.optString("track_url").toString()
-                            val trackImage = track?.optString("track_image").toString()
+                            val trackImage =
+                                if (track?.optString("track_image").toString() != "null") {
+                                    track?.optString("track_image").toString()
+                                } else {
+                                    albumArt
+                                }
                             val artist = track?.optJSONObject("artist")
                             val name = artist?.optString("name").toString()
                             val image = artist?.optString("image").toString()
@@ -127,7 +134,7 @@ class AlbumActivity : AppCompatActivity() {
 
                             albumTrackList.add(trackData)
                         }
-                        albumView.adapter = AlbumAdapter(this, albumTrackList)
+                        albumView.adapter = AlbumAdapter(this, albumTrackList, false)
                         albumLoader.visibility = View.GONE
                     }
                 } else {
@@ -176,6 +183,6 @@ class AlbumActivity : AppCompatActivity() {
                 finish()
             }
         }
-        return super.onKeyDown(keyCode, event)
+        return false
     }
 }

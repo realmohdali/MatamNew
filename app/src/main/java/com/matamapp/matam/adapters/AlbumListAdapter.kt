@@ -30,6 +30,7 @@ class AlbumListAdapter(
             val intent = Intent(context, AlbumActivity::class.java)
             intent.putExtra("album_id", albumList[position].id)
             intent.putExtra("album_name", albumList[position].name)
+            intent.putExtra("album_art", albumList[position].cover)
             context.startActivity(intent)
         }
         val name = albumList[position].name

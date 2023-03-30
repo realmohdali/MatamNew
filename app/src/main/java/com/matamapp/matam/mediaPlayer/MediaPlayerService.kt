@@ -27,12 +27,14 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.matamapp.matam.CommonData
 import com.matamapp.matam.CommonData.Companion.NOTIFICATION_CHANNEL_ID
+import com.matamapp.matam.CommonData.Companion.PREFERENCES
 import com.matamapp.matam.R
 import com.matamapp.matam.fragments.MediaPlayerFragment
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.CHANGE_TRACK
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.MEDIA_VOLUME_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEXT_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PLAYER_PREPARED
@@ -43,6 +45,7 @@ import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.RESET_PLAYER
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_TO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SEEK_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.SHUFFLE_DISABLED
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.STOP_AUDIO
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -95,7 +98,10 @@ class MediaPlayerService : Service() {
         registerPreviousTrackListener()
         registerShuffleListener()
         registerChangeTrackListener()
+        registerUpdateVolumeListener()
+        registerStopServiceListener()
     }
+
 
     override fun onDestroy() {
         stopMedia()
@@ -112,8 +118,13 @@ class MediaPlayerService : Service() {
         localBroadcastManager.unregisterReceiver(previousTrackListener)
         localBroadcastManager.unregisterReceiver(shuffleListener)
         localBroadcastManager.unregisterReceiver(changeTrackListener)
+        localBroadcastManager.unregisterReceiver(updateVolumeListener)
+        localBroadcastManager.unregisterReceiver(stopServiceListener)
 
         localBroadcastManager.sendBroadcast(Intent(RESET_PLAYER))
+
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(1001)
 
         super.onDestroy()
     }
@@ -137,6 +148,7 @@ class MediaPlayerService : Service() {
         mediaPlayer.setOnPreparedListener {
             MediaPlayerFragment.duration = mediaPlayer.duration
             lastPlayed = QueueManagement.currentPosition
+            updateVolume()
             playMedia()
             localBroadcastManager.sendBroadcast(Intent(PLAYER_PREPARED))
             getBitmap()
@@ -402,6 +414,29 @@ class MediaPlayerService : Service() {
         localBroadcastManager.registerReceiver(changeTrackListener, IntentFilter(CHANGE_TRACK))
     }
 
+    private val updateVolumeListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            updateVolume()
+        }
+    }
+
+    private fun registerUpdateVolumeListener() {
+        localBroadcastManager.registerReceiver(
+            updateVolumeListener,
+            IntentFilter(MEDIA_VOLUME_UPDATE)
+        )
+    }
+
+    private val stopServiceListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            resetPlayer()
+        }
+    }
+
+    private fun registerStopServiceListener() {
+        localBroadcastManager.registerReceiver(stopServiceListener, IntentFilter(STOP_AUDIO))
+    }
+
     //Broadcast Receivers END
 
     //Seek Update Function
@@ -542,6 +577,12 @@ class MediaPlayerService : Service() {
         }
     }
 
+    private fun updateVolume() {
+        val sharedPreferences = getSharedPreferences(PREFERENCES, MODE_PRIVATE)
+        val volume = sharedPreferences.getFloat("volumeLevel", 0.8f)
+        mediaPlayer.setVolume(volume, volume)
+    }
+
     //Other Helping Functions END
 
     //Media Notification
@@ -585,6 +626,12 @@ class MediaPlayerService : Service() {
             this, 0, playIntent, PendingIntent.FLAG_IMMUTABLE
         )
 
+        val stopIntent = Intent(this, NotificationActionReceiver::class.java)
+        stopIntent.action = STOP_AUDIO
+        val stopPendingIntent = PendingIntent.getBroadcast(
+            this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
 
         val mediaSession = MediaSessionCompat(this, "Matam Media Session")
         val mediaMetadata = MediaMetadataCompat.Builder()
@@ -611,7 +658,7 @@ class MediaPlayerService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
-            .setAutoCancel(false)
+            .setAutoCancel(true)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
@@ -625,8 +672,10 @@ class MediaPlayerService : Service() {
                 .addAction(android.R.drawable.ic_media_play, "Play", playPendingIntent)
         }
         notification.addAction(android.R.drawable.ic_media_next, "Next", nextPendingIntent)
+        notification.addAction(R.drawable.baseline_stop_24, "Stop", stopPendingIntent)
 
-        startForeground(1001, notification.build())
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1001, notification.build())
     }
 
     private fun getBitmap() {
@@ -671,7 +720,9 @@ class NotificationActionReceiver : BroadcastReceiver() {
             PLAY_AUDIO -> {
                 LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(PLAY_AUDIO))
             }
+            STOP_AUDIO -> {
+                LocalBroadcastManager.getInstance(context!!).sendBroadcast(Intent(STOP_AUDIO))
+            }
         }
     }
 }
-

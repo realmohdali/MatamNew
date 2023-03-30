@@ -2,9 +2,9 @@ package com.matamapp.matam.fragments
 
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -16,10 +16,12 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.matamapp.matam.*
+import com.matamapp.matam.CommonData.Companion.PREFERENCES
 import com.matamapp.matam.db.FavoriteData
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_END
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_START
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.BUFFERING_UPDATE
+import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.MEDIA_VOLUME_UPDATE
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEW_AUDIO
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.NEXT_TRACK
 import com.matamapp.matam.mediaPlayer.BroadcastConstants.Companion.PAUSE_AUDIO
@@ -53,7 +55,6 @@ class MediaPlayerFragment : Fragment() {
     private lateinit var playerView: View
     private lateinit var miniPlayer: View
     private var isPlayerExpanded = false
-    private lateinit var audioManager: AudioManager
 
     //Main player elements
     private lateinit var collapsePlayer: ImageButton
@@ -405,22 +406,9 @@ class MediaPlayerFragment : Fragment() {
     }
 
     private fun setUpVolumeBar() {
-        audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-        volumeBar.progress = volumeLevel
-    }
-
-    private fun updateVolumeBar() {
-        val volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-        volumeBar.progress = volumeLevel
-    }
-
-    fun setVolume(keyCode: Int) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            updateVolumeBar()
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            updateVolumeBar()
-        }
+        val sharedPreferences = context?.getSharedPreferences(PREFERENCES, MODE_PRIVATE)
+        val volume = ((sharedPreferences?.getFloat("volumeLevel", 0.8f))?.times(10))?.toInt()
+        volumeBar.progress = volume!!
     }
 
     //End Setup functions
@@ -450,9 +438,12 @@ class MediaPlayerFragment : Fragment() {
 
         volumeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                audioManager.setStreamVolume(
-                    AudioManager.STREAM_MUSIC, progress, 0
-                )
+                val volumeLevel = progress * ((0.1).toFloat())
+                val sharedPreferences =
+                    context?.getSharedPreferences(PREFERENCES, MODE_PRIVATE)
+                val preferencesEditor = sharedPreferences?.edit()
+                preferencesEditor?.putFloat("volumeLevel", volumeLevel)?.apply()
+                localBroadcastManager.sendBroadcast(Intent(MEDIA_VOLUME_UPDATE))
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
