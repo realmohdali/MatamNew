@@ -102,6 +102,11 @@ class MediaPlayerService : Service() {
         registerStopServiceListener()
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        stopSelf()
+    }
+
 
     override fun onDestroy() {
         stopMedia()
@@ -123,8 +128,12 @@ class MediaPlayerService : Service() {
 
         localBroadcastManager.sendBroadcast(Intent(RESET_PLAYER))
 
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(1001)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
 
         super.onDestroy()
     }
@@ -674,8 +683,7 @@ class MediaPlayerService : Service() {
         notification.addAction(android.R.drawable.ic_media_next, "Next", nextPendingIntent)
         notification.addAction(R.drawable.baseline_stop_24, "Stop", stopPendingIntent)
 
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1001, notification.build())
+        startForeground(1001, notification.build())
     }
 
     private fun getBitmap() {
