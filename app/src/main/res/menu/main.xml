@@ -8,8 +8,16 @@
 <!--        android:showAsAction="always" />-->
 
     <item
+        android:id="@+id/contact"
+        android:icon="@drawable/baseline_contact_mail_24"
+        android:title="About"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/favorite"
         android:icon="@drawable/ic_24_baseline_favorite_24"
         android:title="Favorite"
         app:showAsAction="always" />
+
+
 </menu>

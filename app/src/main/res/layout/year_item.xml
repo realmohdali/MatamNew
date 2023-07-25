@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/year_card_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardBackgroundColor="@color/year_gray"
-    app:cardCornerRadius="50dp">
+    app:cardCornerRadius="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="100dp"
@@ -16,13 +17,23 @@
             android:id="@+id/year_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2022"
+            android:layout_marginTop="18dp"
+            android:text="1445"
             android:textColor="@color/red"
             android:textSize="34sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/year_name_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2023-2024"
+            android:textColor="@color/red"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/year_name" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

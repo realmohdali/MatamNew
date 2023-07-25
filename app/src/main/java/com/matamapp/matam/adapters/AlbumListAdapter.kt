@@ -35,6 +35,7 @@ class AlbumListAdapter(
         }
         val name = albumList[position].name
         holder.albumName.text = name
+        holder.albumName.isSelected = true
         if (albumList[position].cover != "null") {
             Glide.with(holder.albumArt.context)
                 .load(albumList[position].cover)

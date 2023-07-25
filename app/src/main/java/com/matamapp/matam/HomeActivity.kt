@@ -146,6 +146,10 @@ class HomeActivity : AppCompatActivity() {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 true
             }
+            R.id.contact -> {
+                startActivity(Intent(this, AboutActivity::class.java))
+                true
+            }
             else -> {
                 super.onOptionsItemSelected(item)
             }

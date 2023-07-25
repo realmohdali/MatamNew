@@ -42,11 +42,12 @@ class AlbumListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = "Albums"
         val intent: Intent = intent
         caller = intent.getStringExtra("caller").toString()
         id = intent.getStringExtra("id").toString()
+        val name = intent.getStringExtra("name")
         loader = findViewById(R.id.loader)
+        supportActionBar?.title = name
 
         getData()
 
@@ -159,6 +160,10 @@ class AlbumListActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 finish()
+                return true
+            }
+            R.id.contact->{
+                startActivity(Intent(this, AboutActivity::class.java))
                 return true
             }
 //            R.id.profile -> {

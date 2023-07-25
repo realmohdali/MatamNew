@@ -28,10 +28,12 @@ class NauhaKhuwanAdapter(private var context: Context, private var artists: Muta
             val intent = Intent(context, AlbumListActivity::class.java)
             intent.putExtra("caller", "artist")
             intent.putExtra("id", artists[position].id)
+            intent.putExtra("name", artists[position].name)
             context.startActivity(intent)
         }
         val name = artists[position].name
         holder.artistName.text = name
+        holder.artistName.isSelected = true
         val url = artists[position].image
         Glide
             .with(context)

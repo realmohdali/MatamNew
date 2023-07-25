@@ -25,6 +25,7 @@ class YearsAdapter(private val context: Context, private val years: MutableList<
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.yearName.text = years[position].yearHijri
+        holder.yearNameAD.text = years[position].yearAD
         holder.yearCardView.setOnClickListener {
             val intent = Intent(context, AlbumListActivity::class.java)
             intent.putExtra("caller", "year")
@@ -40,5 +41,6 @@ class YearsAdapter(private val context: Context, private val years: MutableList<
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val yearName: TextView = itemView.findViewById(R.id.year_name)
         val yearCardView: CardView = itemView.findViewById(R.id.year_card_view)
+        val yearNameAD: TextView = itemView.findViewById(R.id.year_name_ad)
     }
 }

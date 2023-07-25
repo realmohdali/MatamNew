@@ -161,6 +161,10 @@ class AlbumActivity : AppCompatActivity() {
 //                startActivity(Intent(this, ProfileActivity::class.java))
 //                return true
 //            }
+            R.id.contact -> {
+                startActivity(Intent(this, AboutActivity::class.java))
+                return true
+            }
             R.id.favorite -> {
                 startActivity(Intent(this, FavoriteActivity::class.java))
                 return true
