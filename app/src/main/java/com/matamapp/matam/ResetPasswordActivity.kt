@@ -27,7 +27,7 @@ class ResetPasswordActivity : AppCompatActivity() {
         setContentView(R.layout.activity_reset_password)
 
         val activityIntent = intent
-        email = activityIntent.extras?.get("email").toString()
+        email = activityIntent.extras?.getString("email").toString()
 
         val resetCode = findViewById<EditText>(R.id.code)
         val newPassword = findViewById<EditText>(R.id.new_password)

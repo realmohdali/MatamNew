@@ -13,7 +13,7 @@
     <item
         android:id="@+id/navigation_Nauha_Khuwan"
         android:icon="@drawable/ic_baseline_people_alt_24"
-        android:title="Nahua Khuwan" />
+        android:title="Nauha Khuwan" />
 
     <item
         android:id="@+id/navigation_year"

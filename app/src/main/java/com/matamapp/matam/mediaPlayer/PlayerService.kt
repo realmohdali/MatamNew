@@ -262,7 +262,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             null
         }
 
-        val audioFocusRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        @Suppress("DEPRECATION") val audioFocusRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioManager.requestAudioFocus(focusRequest!!)
         } else {
             audioManager.requestAudioFocus(
